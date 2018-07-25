@@ -27,6 +27,8 @@ key = pyglet.window.key
 keyboard = key.KeyStateHandler()
 win.winHandle.push_handlers(keyboard)
 
+#set up list of colours for colour space 
+red_to_green = ["#FF0000", "#FC0100", "#F90200", "#F70300", "#F40500", "#F20600", "#EF0700", "#EC0900", "#EA0A00", "#E70B00", "#E50C00", "#E20E00", "#E00F00", "#DD1000", "#DA1200", "#D81300", "#D51400", "#D31500", "#D01700", "#CE1800", "#CB1900", "#C81B00", "#C61C00", "#C31D00", "#C11F00", "#BE2000", "#BC2100", "#B92200", "#B62400", "#B42500", "#B12600", "#AF2800", "#AC2900", "#AA2A00", "#A72B00", "#A42D00", "#A22E00", "#9F2F00", "#9D3100", "#9A3200", "#973300", "#953500", "#923600", "#903700", "#8D3800", "#8B3A00", "#883B00", "#853C00", "#833E00", "#803F00", "#7E4000", "#7B4100", "#794300", "#764400", "#734500", "#714700", "#6E4800", "#6C4900", "#694A00", "#674C00", "#644D00", "#614E00", "#5F5000", "#5C5100", "#5A5200", "#575400", "#555500", "#525600", "#4F5700", "#4D5900", "#4A5A00", "#485B00", "#455D00", "#425E00", "#405F00", "#3D6000", "#3B6200", "#386300", "#366400", "#336600", "#306700", "#2E6800", "#2B6A00", "#296B00", "#266C00", "#246D00", "#216F00", "#1E7000", "#1C7100", "#197300", "#177400", "#147500", "#127600", "#0F7800", "#0C7900", "#0A7A00", "#077C00", "#057D00", "#027E00", "#008000"]
 """Instructions"""
 #Screen 1message1 = visual.TextStim(win, pos=[0,3],text="We are going to play a game with some worms!")message2 = visual.TextStim(win, pos=[0,-3],text="You are going to see some worms, like the one below")
 exampleWorm = visual.ImageStim(win, image='stim/wormy_green.png',pos=[0, -10])
@@ -71,6 +73,8 @@ win.flip()#to show our newly drawn 'stimuli'
 event.waitKeys()
 
 """ Two Target Trial """
+
+
 #variables 
 left_col = 'red'
 right_col = 'green'
@@ -80,7 +84,7 @@ target = 0
 delay = 2
 encoding_duration = 2
 resp_start = random.randint(1,360)
-resp_duration = 10
+resp_duration = 2
 
 #pre trial interval
 cross = visual.TextStim(win, pos=[0,0], text="+", color='white') #just show cross
@@ -108,8 +112,10 @@ core.wait(delay) #wait for delay
 #response phase 
 if target == 0: #draw left as response_target
     resp_targ = visual.ImageStim(win, image='stim/wormy.png',pos=[-15, 0], color= left_col, ori=resp_start, size=[10,3]) #stimuli at starting position
+    correct_angle = left_ori
 elif target == 1: #draw right as response target 
     resp_targ = visual.ImageStim(win, image='stim/wormy.png',pos=[+15, 0], color=right_col, ori=resp_start, size=[10,3]) #stimuli at starting position
+    correct_angle = right_ori
 
 timer_wedge = visual.RadialStim(win, tex='sqrXsqr', size=5, 
     visibleWedge=[0, 0], radialCycles=0, angularCycles=0, interpolate=False)  
@@ -124,6 +130,12 @@ while animating == True:
         resp_targ.ori += 1
     resp_targ.draw() # draw the newly rotated target
     
+    #if more than 360 or less than 0 change 
+    if resp_targ.ori >= 360:
+        resp_targ.ori = 0
+    if resp_targ.ori <= 0:
+        resp_targ = 360
+    
     #Now update the timer and adjust wedge
     fraction = resp_clock.getTime()/resp_duration
     timer_wedge.visibleWedge = [0, (365*fraction)]
@@ -137,10 +149,19 @@ while animating == True:
         animating = False
     
 
-resp_angle = resp_targ.ori; #record the angle 
+#Feedback
+resp_angle = resp_targ.ori; #record the angle of response from the last shown frame 
+diff = resp_angle - correct_angle # how far off was it, sine gives the direction 
+feed = round(((360 - abs(diff))/360)*100)
 
-
-
+message1 = visual.TextStim(win, pos=[0,2],alignHoriz='center',text="Your Accuracy Was:")
+message2 = visual.TextStim(win, pos=[0,-2],alignHoriz='center',text=str(feed) +"%", color=red_to_green[int(feed)])
+message1.draw()
+message2.draw()
+cross.draw()
+win.flip()#to show our newly drawn 'stimuli'
+#pause until there's a keypress
+event.waitKeys()
 
 
 
