@@ -69,6 +69,7 @@ STIMPOS = [ \
     (int(DISPCENTRE[0]+DISPSIZE[0]*0.2), DISPCENTRE[1]), \
     ]
 
+TRIAL_BREAKS = 10
 # EYE TRACKER SETTINGS
 # Brand of the eye tracker.
 TRACKERTYPE = 'eyelink'
