@@ -62,7 +62,7 @@ RESPONSE_TIMEOUT = 4992
 FEED_DURATION = 1992
 # STIMULUS SETTINGS
 # Names of the stimuli.
-STIMNAMES = ["snek_b", "snek_y"]
+STIMNAMES = ["plain_snek_b", "plain_snek_y"]
 # Potential positions of the stimuli.
 STIMPOS = [ \
     (int(DISPCENTRE[0]-DISPSIZE[0]*0.2), DISPCENTRE[1]), \
@@ -81,10 +81,10 @@ DRIFT_CHECK_FREQ = 20
 
 def clamp_angle(input):
 
-	if input >= 360.0:
-		return input - 360.0
+	if input >= 360:
+		return input - 360
 	elif input <= 0:
-		return 360.0 - input 
+		return 360 + input 
 	else:
 		return input
 

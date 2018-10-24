@@ -113,7 +113,7 @@ re-appear.
 
 (Press any button to continue.)
 """
-inst_scr.draw_text(instructions, fontsize=24)
+inst_scr.draw_text(instructions, fontsize=24, center=True)
 instruction_screens.append(inst_scr)
 
 # Second screen with text and images.
@@ -213,9 +213,7 @@ Now it is time for the main part of the task.
 
 Remember to try and be as accurate as possible, but don't take too long. 
 
-You will have """+ str(n_trials/TRIAL_BREAKS) +\
-"""
- breaks in the task.  
+You will have """+ str(n_trials/TRIAL_BREAKS) +""" breaks in the task.  
 
 (Press any button to continue.)
 """
@@ -559,13 +557,8 @@ for trialnr, trial in enumerate(prac_trials):
     #present text
     feedscr.clear()
     feedtxt = str(feedscore) + " %" 
-    feedtxt2 = \
-    """
-    Worms until next break:
 
-    """ + str(TRIAL_BREAKS - trialnr % TRIAL_BREAKS) 
     feedscr.draw_text(feedtxt, fontsize=25, colour=RED2GREEN[int(numpy.round(feedscore))-1])
-    feedscr.draw_text(feedtxt2, fontsize = 25, pos = (DISPCENTRE[0], DISPCENTRE[1] - DISPSIZE[0]*0.2))
     #draw and wait 
     disp.fill(feedscr)
     feed_onset = disp.show()
@@ -690,14 +683,10 @@ for trialnr, trial in enumerate(trials):
     #present text
     feedscr.clear()
     feedtxt = str(feedscore) + " %"
-    feedtxt2 = \
-    """
-    Worms until next break:
-
-    """ + str((TRIAL_BREAKS - trialnr % TRIAL_BREAKS)-1) 
+    feedtxt2 = " Worms until next break: " + str((TRIAL_BREAKS - trialnr % TRIAL_BREAKS)-1) 
 
     feedscr.draw_text(feedtxt, fontsize=25, colour=RED2GREEN[int(numpy.round(feedscore))-1])
-    feedscr.draw_text(feedtxt2, fontsize = 25, pos = (DISPCENTRE[0], DISPCENTRE[1] - DISPSIZE[0]*0.2))
+    feedscr.draw_text(feedtxt2, fontsize = 25, pos = (DISPCENTRE[0], DISPCENTRE[1] + DISPSIZE[0]*0.2), center=True)
 
 
     #draw and wait 
