@@ -13,6 +13,12 @@ from pygaze.logfile import Logfile
 from pygaze.eyetracker import EyeTracker
 import pygaze.libtime as timer
 
+from libmeg import *
+
+
+MEG = False; # Flag for using button box and waiting for pulses/ seinding triggers etc 
+
+
 
 # # # # #
 # INITIALISE
@@ -26,16 +32,35 @@ scr.draw_text("Loading, please wait...", fontsize=24)
 disp.fill(scr)
 disp.show()
 
-# Open a new log file.
-log = Logfile()
-# TODO: Write header.
 
+LOGFILENAME = input("Participant name: ") 
+LOGFILE = LOGFILENAME[:] +'_trials.txt'
+DETAILED_LOGFILE = LOGFILENAME[:] +'_detailed.txt'
+# Open a new log file.
+log = Logfile(filename = LOGFILE)
+lof_det = Logfile(filename = DETAILED_LOGFILE)
+# TODO: Write header.
+log.write(["trialnr","left_ang","right_ang", "cue_dir", "targ", "targ_ang", "resp_ang", "perc_diff", "resp_onset"] 
 # Initialise the eye tracker.
 tracker = EyeTracker(disp)
 
 # Create a new Keyboard instance to process key presses.
 kb = Keyboard(keylist=None, timeout=5000)
 mouse = Mouse()
+
+# intitliase the MEG interface NI box 
+if MEG:
+    trigbox = MEGTriggerBox()
+
+# initialise a function 
+
+
+# trigbox.set_trigger_state(1) <= Example usage 
+
+# btn_list, state = trigbox.get_button_state() <= example usage, needs to be constantly updated during task 
+
+# (0) <= might have to do this
+
 
 
 # # # # #
@@ -48,6 +73,15 @@ mouse = Mouse()
 # - probeside (0 for left, 1 for right)
 # - probestim (should follow from stimulus direction and probeside)
 trials = []
+
+
+# everything between 200-255 for events 
+# everything below is for response 1-180 where 180 = 0 
+
+# second log file for continous response data => trial number, curr timestamp, curr orientation
+# first log file is onset of screens - one line per trial, column for each event (e.g. trial, stim_onset, stim_offset, cue_onset etc., resposne, orientation, error, which stim was probed, blaalaal)
+
+
 
 # Create a list of unique trials.
 utrials = []
@@ -67,9 +101,9 @@ for i in range(UNIQUE_TRIAL_REPEATS):
 n_trials = len(trials)
 print(trials)
 # Generate uniform distributions on orientations for both stimuli.
-stepsize = 360.0 / n_trials
-stim0 = numpy.arange(0, 360.0, stepsize).astype(int)
-stim1 = numpy.arange(0, 360.0, stepsize).astype(int)
+stepsize = 180.0 / n_trials
+stim0 = numpy.arange(0, 180.0, stepsize).astype(int)
+stim1 = numpy.arange(0, 180.0, stepsize).astype(int)
 #print(stim0)
 # Randomise the stimulus orientations.
 random.shuffle(stim0)
@@ -314,7 +348,16 @@ for scrn in instruction_screens:
     timer.pause(100)
     disp.fill(scrn); 
     disp.show()
-    mouse.get_clicked()
+    btn_pressed = False
+
+    if MEG: # if MEG repeatedly loop until button state changes
+        while btn_pressed != True:
+            btn_list, state = trigbox.get_button_state(button_list = [MAIN_BUT])
+            if state[0] != 0:
+                btn_pressed = True
+
+    else: 
+        mouse.get_clicked()
 
 #now show the first practice screen 
 disp.fill(prac_scr)
@@ -338,8 +381,19 @@ while (time_at_target < 0.2 and time_trial < 10000):
     # duration of the last frame 
     time_frame = time_now - time_last 
     # Poll the input device.
-    key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
-    button_states = mouse.get_pressed()
+    
+    if MEG:
+        btn_list, state = trigbox.get_button_state(button_list = [LEFT_BUT, RIGHT_BUT]) # get button states 
+        # we need to replicate the get_pressed() pygame functionality 
+        button_states = [False, False] # list of bools 
+        if state[0] != 0: # if left button is not 0
+            button_states[0] = True
+        if state[-1] != 0: # if right button is not 0 
+            button_states[-1] = True 
+
+    else:
+        key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
+        button_states = mouse.get_pressed()
     # Break loop on 'q' press.
     if key == 'q':
         log.close()
@@ -381,7 +435,15 @@ disp.fill(prac_scr2)
 
 timer.pause(500) # pause so loads of clicks don't go through
 disp.show()
-mouse.get_clicked()
+
+if MEG: # if MEG repeatedly loop until button state changes
+    while btn_pressed != True:
+        btn_list, state = trigbox.get_button_state(button_list = [MAIN_BUT])
+        if state[0] != 0:
+            btn_pressed = True
+
+else: 
+    mouse.get_clicked()
 
 # Third practice screen 
 disp.fill(prac_scr3)
@@ -403,9 +465,18 @@ while (time_at_target < 0.2 and time_trial < 10000):
     time_trial = time_now - start_time
     if (time_trial > 10000):
         correct = False; 
-    # Poll the input device.
-    key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
-    button_states = mouse.get_pressed()
+    if MEG:
+        btn_list, state = trigbox.get_button_state(button_list = [LEFT_BUT, RIGHT_BUT]) # get button states 
+        # we need to replicate the get_pressed() pygame functionality 
+        button_states = [False, False] # list of bools 
+        if state[0] != 0: # if left button is not 0
+            button_states[0] = True
+        if state[-1] != 0: # if right button is not 0 
+            button_states[-1] = True 
+
+    else:
+        key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
+        button_states = mouse.get_pressed()
     # Break loop on 'q' press.
     if key == 'q':
         log.close()
@@ -451,7 +522,14 @@ if (correct == False):
 disp.fill(prac_scr4)
 timer.pause(500) # pause so loads of clicks don't go through
 disp.show()
-mouse.get_clicked()
+if MEG: # if MEG repeatedly loop until button state changes
+    while btn_pressed != True:
+        btn_list, state = trigbox.get_button_state(button_list = [MAIN_BUT])
+        if state[0] != 0:
+            btn_pressed = True
+
+else: 
+    mouse.get_clicked()
 
 # # # # #
 # RUN PRACTICE TRIALS 
@@ -519,9 +597,18 @@ for trialnr, trial in enumerate(prac_trials):
     # TODO: Move stimulus according to input.
     t1 = copy.copy(probe_onset)
     while t1 - probe_onset < RESPONSE_TIMEOUT:
-        # Poll the input device.
-        key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
-        button_states = mouse.get_pressed()
+        if MEG:
+            btn_list, state = trigbox.get_button_state(button_list = [LEFT_BUT, RIGHT_BUT]) # get button states 
+            # we need to replicate the get_pressed() pygame functionality 
+            button_states = [False, False] # list of bools 
+            if state[0] != 0: # if left button is not 0
+                button_states[0] = True
+            if state[-1] != 0: # if right button is not 0 
+                button_states[-1] = True 
+
+        else:
+            key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
+            button_states = mouse.get_pressed()
         # Break loop on 'q' press.
         if key == 'q':
             log.close()
@@ -543,16 +630,25 @@ for trialnr, trial in enumerate(prac_trials):
 
     # TODO: Log trial input.
     respAng = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori
+
+    # remember 180 is the degree of movement, so convert anything above 180 
+    print ('resp angle raw' + str(respAng))
+    if respAng > 180: 
+        respAng = respAng - 180
+
+    print ('resp angle after' + str(respAng))
     #print(trial['stimorder'])
     #print(trial['probe_direction'])
     targAng = stimscr[trial['stimorder']].screen[stim_index[trial['stimorder']][trial['probe_direction']]].ori
+    print('target angle' + str(targAng))
     #targAng = stimscr[direction].screen[stim_index[direction][0]].ori
    
     ## Present feedback.
     #Calculate difference score
-    a = respAng - targAng
-    a = (a + 180) % 360 - 180
-    feedscore = numpy.round(100 - (((abs(a)/360)*100) *2),1)
+    a = 180 - abs(abs(respAng - targAng) - 180); 
+    #a = respAng - targAng
+    #a = (a + 180) % 360 - 180
+    feedscore = numpy.round(100 - (((abs(a)/90)*100) ),1)
 
     #present text
     feedscr.clear()
@@ -570,7 +666,14 @@ for trialnr, trial in enumerate(prac_trials):
 disp.fill(prac_scr5)
 timer.pause(500) # pause so loads of clicks don't go through
 disp.show()
-mouse.get_clicked()
+if MEG: # if MEG repeatedly loop until button state changes
+    while btn_pressed != True:
+        btn_list, state = trigbox.get_button_state(button_list = [MAIN_BUT])
+        if state[0] != 0:
+            btn_pressed = True
+
+else: 
+    mouse.get_clicked()
 
 
 # # # # #
@@ -583,7 +686,14 @@ for trialnr, trial in enumerate(trials):
         print('breaktime')
         disp.fill(breakscr)
         start_break = disp.show()
-        mouse.get_clicked()
+        if MEG: # if MEG repeatedly loop until button state changes
+            while btn_pressed != True:
+                btn_list, state = trigbox.get_button_state(button_list = [MAIN_BUT])
+                if state[0] != 0:
+                    btn_pressed = True
+
+        else: 
+            mouse.get_clicked()
 
     # PREPARE
     # If there is a neutral cue, randomly choose the probe direction.
@@ -645,9 +755,18 @@ for trialnr, trial in enumerate(trials):
     # TODO: Move stimulus according to input.
     t1 = copy.copy(probe_onset)
     while t1 - probe_onset < RESPONSE_TIMEOUT:
-        # Poll the input device.
-        key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
-        button_states = mouse.get_pressed()
+        if MEG:
+            btn_list, state = trigbox.get_button_state(button_list = [LEFT_BUT, RIGHT_BUT]) # get button states 
+            # we need to replicate the get_pressed() pygame functionality 
+            button_states = [False, False] # list of bools 
+            if state[0] != 0: # if left button is not 0
+                button_states[0] = True
+            if state[-1] != 0: # if right button is not 0 
+                button_states[-1] = True 
+
+        else:
+            key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
+            button_states = mouse.get_pressed()
         # Break loop on 'q' press.
         if key == 'q':
             log.close()
@@ -669,17 +788,25 @@ for trialnr, trial in enumerate(trials):
 
     # TODO: Log trial input.
     respAng = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori
+
+    # remember 180 is the degree of movement, so convert anything above 180 
+    print ('resp angle raw' + str(respAng))
+    if respAng > 180: 
+        respAng = respAng - 180
+
+    print ('resp angle after' + str(respAng))
     #print(trial['stimorder'])
     #print(trial['probe_direction'])
     targAng = stimscr[trial['stimorder']].screen[stim_index[trial['stimorder']][trial['probe_direction']]].ori
+    print('target angle' + str(targAng))
     #targAng = stimscr[direction].screen[stim_index[direction][0]].ori
    
     ## Present feedback.
     #Calculate difference score
-    a = respAng - targAng
-    a = (a + 180) % 360 - 180
-    feedscore = numpy.round(100 - (((abs(a)/360)*100) *2),1)
-
+    a = 180 - abs(abs(respAng - targAng) - 180); 
+    #a = respAng - targAng
+    #a = (a + 180) % 360 - 180
+    feedscore = numpy.round(100 - (((abs(a)/90)*100) ),1)
     #present text
     feedscr.clear()
     feedtxt = str(feedscore) + " %"

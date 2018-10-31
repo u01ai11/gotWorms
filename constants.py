@@ -47,6 +47,12 @@ CUE_DIRECTIONS = [-1, 0, 1]
 # run.
 UNIQUE_TRIAL_REPEATS = 40
 
+#MEG Button box info 
+# button_list = ["S3", "S4", "S5", "S6", "S7"]
+MAIN_BUT = "S3"
+
+LEFT_BUT = "S3"
+RIGHT_BUT = "S4"
 # TIMING
 # Duration of the stimulus presentation in milliseconds.
 STIM_DURATION = 992
@@ -62,7 +68,7 @@ RESPONSE_TIMEOUT = 4992
 FEED_DURATION = 1992
 # STIMULUS SETTINGS
 # Names of the stimuli.
-STIMNAMES = ["plain_snek_b", "plain_snek_y"]
+STIMNAMES = ["snek_b", "snek_y"]
 # Potential positions of the stimuli.
 STIMPOS = [ \
     (int(DISPCENTRE[0]-DISPSIZE[0]*0.2), DISPCENTRE[1]), \
