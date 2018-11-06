@@ -23,6 +23,11 @@ MEG = False; # Flag for using button box and waiting for pulses/ seinding trigge
 # # # # #
 # INITIALISE
 
+# get participant info etc
+LOGFILENAME = input("Participant name: ") 
+LOGFILE = LOGFILENAME[:] +'_trials'
+DETAILED_LOGFILE = LOGFILENAME[:] +'_detailed'
+
 # Initialise a new Display instance.
 disp = Display()
 
@@ -33,14 +38,13 @@ disp.fill(scr)
 disp.show()
 
 
-LOGFILENAME = input("Participant name: ") 
-LOGFILE = LOGFILENAME[:] +'_trials.txt'
-DETAILED_LOGFILE = LOGFILENAME[:] +'_detailed.txt'
+
 # Open a new log file.
 log = Logfile(filename = LOGFILE)
-lof_det = Logfile(filename = DETAILED_LOGFILE)
+log_det = Logfile(filename = DETAILED_LOGFILE)
 # TODO: Write header.
-log.write(["trialnr","left_ang","right_ang", "cue_dir", "targ", "targ_ang", "resp_ang", "perc_diff", "resp_onset"] 
+log.write(["trialnr","left_ang","right_ang", "cue_dir", "targ", "targ_ang", "resp_ang", "perc_diff", "resp_onset", "resp_duration", "iti", "iti_onset", "stim_onset","delay_onset", "cue_onset", "postcue_onset","probe_onset", "prac"])
+log_det.write(["trialnr", "timestamp", "angle", "event", "targ_ang", "cue_dir"])
 # Initialise the eye tracker.
 tracker = EyeTracker(disp)
 
@@ -99,12 +103,13 @@ for i in range(UNIQUE_TRIAL_REPEATS):
 
 # Add stimulus orientations.
 n_trials = len(trials)
-print(trials)
+
 # Generate uniform distributions on orientations for both stimuli.
 stepsize = 180.0 / n_trials
 stim0 = numpy.arange(0, 180.0, stepsize).astype(int)
 stim1 = numpy.arange(0, 180.0, stepsize).astype(int)
 #print(stim0)
+
 # Randomise the stimulus orientations.
 random.shuffle(stim0)
 random.shuffle(stim1)
@@ -113,6 +118,13 @@ random.shuffle(stim1)
 for i in range(len(trials)):
     trials[i]['stim0'] = stim0[i]
     trials[i]['stim1'] = stim1[i]
+
+# We need jittered ITIs so get a distribution between the max and min given
+stepsize = (ITI_RANGE[1] - ITI_RANGE[0]) /n_trials
+itis = numpy.arange(ITI_RANGE[0], ITI_RANGE[1], stepsize).astype(int)
+for i in range(len(trials)):
+    trials[i]['iti'] = itis[i]
+
 
 # Randomise trial order.
 random.shuffle(trials)
@@ -247,7 +259,7 @@ Now it is time for the main part of the task.
 
 Remember to try and be as accurate as possible, but don't take too long. 
 
-You will have """+ str(n_trials/TRIAL_BREAKS) +""" breaks in the task.  
+You will have """+ str(int(n_trials/TRIAL_BREAKS)) +""" breaks in the task.  
 
 (Press any button to continue.)
 """
@@ -329,8 +341,8 @@ breaktxt = \
 """
 This is one of your breaks. 
 
-You will have another in""" + str(TRIAL_BREAKS) + \
-"""more trials.
+You will have another in """ + str(int(TRIAL_BREAKS)) + \
+""" more trials.
 
 PRESS ANY BUTTON TO END THE BREAK
 """
@@ -549,15 +561,20 @@ for trialnr, trial in enumerate(prac_trials):
     
     #print(trial['stim0'])
     # Rotate stimuli to orientation.
-    stimscr[trial['stimorder']].screen[stim_index[trial['stimorder']][0]].ori = trial['stim0']
-    stimscr[trial['stimorder']].screen[stim_index[trial['stimorder']][1]].ori = trial['stim1']
+    #stimscr[0 or 1].screem[]
+
+    stimscr[trial['stimorder']].screen[stim_index[trial['stimorder']][0]].ori = trial['stim0'] #left
+    stimscr[trial['stimorder']].screen[stim_index[trial['stimorder']][1]].ori = trial['stim1'] # right 
     #Draw them on to the screen 
 
     
     # RUN
-    # TODO: Inter-trial-interval.
-    
-    # TODO: Optional drift check.
+    # Inter-trial-interval.
+    disp.fill(delayscr)
+    iti_onset = disp.show()
+    timer.pause(trial['iti'])
+
+    # Optional drift check.
     if (trialnr > 0) and (trialnr % DRIFT_CHECK_FREQ == 0):
         tracker.drift_correction()
 
@@ -594,8 +611,13 @@ for trialnr, trial in enumerate(prac_trials):
     # Flush the keyboard.
     kb.get_key(keylist=None, timeout=1, flush=True)
 
-    # TODO: Move stimulus according to input.
-    t1 = copy.copy(probe_onset)
+    #Move stimulus according to input.
+    t1 = copy.copy(probe_onset) # timer 
+    resp_started = False; 
+    resp_len = 0 
+    resp_onset = 0 
+    currang = 0 
+    tarang = 0
     while t1 - probe_onset < RESPONSE_TIMEOUT:
         if MEG:
             btn_list, state = trigbox.get_button_state(button_list = [LEFT_BUT, RIGHT_BUT]) # get button states 
@@ -617,16 +639,32 @@ for trialnr, trial in enumerate(prac_trials):
             raise Exception('DEBUG KILL')
         # Rotate the stimulus accordingly.
         if key == 'f' or button_states[0]:
+            if resp_started == False:
+                resp_started = True 
+                resp_onset = copy.copy(t1) - probe_onset #time stamp of response onset 
             pre_clamp = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori -1
             #print(clamp_angle(pre_clamp))
             probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori = clamp_angle(int(pre_clamp))
+            resp_len = copy.copy(t1) - probe_onset - resp_onset 
         elif key == 'j' or button_states[-1]:
+            if resp_started == False:
+                resp_started = True 
+                resp_onset = copy.copy(t1) - probe_onset#time stamp of response onset 
             pre_clamp = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori +1
             #print(clamp_angle(pre_clamp))
             probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori = clamp_angle(int(pre_clamp))
+            resp_len = copy.copy(t1) - probe_onset - resp_onset
         # Update the display.
         disp.fill(probescr[trial['probe_direction']][probed_stim])
-        t1 = disp.show()
+        #log_det.write(["trialnr", "timestamp", "angle", "event", "targ_ang", "cue_dir"])
+        #write to log file detailed 
+        currang = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori
+        if currang > 180:
+            currang = currang - 180 
+        tarang = stimscr[trial['stimorder']].screen[stim_index[trial['stimorder']][trial['probe_direction']]].ori
+        log_det.write([str(trialnr), str(t1 - probe_onset), str(currang), "0", str(tarang), str(trial['cue_direction'])])
+        t1 = disp.show() #update timestamp
+
 
     # TODO: Log trial input.
     respAng = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori
@@ -645,16 +683,24 @@ for trialnr, trial in enumerate(prac_trials):
    
     ## Present feedback.
     #Calculate difference score
-    a = 180 - abs(abs(respAng - targAng) - 180); 
+    a = 90 - abs(abs(respAng - targAng) - 90); 
     #a = respAng - targAng
     #a = (a + 180) % 360 - 180
-    feedscore = numpy.round(100 - (((abs(a)/90)*100) ),1)
+    feedscore = numpy.round(100 - ((a/90)*100))
 
     #present text
     feedscr.clear()
-    feedtxt = str(feedscore) + " %" 
+
+    feedtxt = str(int(feedscore)) + " %"
+    #feedtxt2 = " Worms until next break: " + str((TRIAL_BREAKS - trialnr % TRIAL_BREAKS)-1) 
 
     feedscr.draw_text(feedtxt, fontsize=25, colour=RED2GREEN[int(numpy.round(feedscore))-1])
+    #feedscr.draw_text(feedtxt2, fontsize = 25, pos = (DISPCENTRE[0], DISPCENTRE[1] + DISPSIZE[0]*0.2), center=True)
+    
+    ##LOG THE TRIAL 
+    #log.write(["trialnr","left_ang","right_ang", "cue_dir", "targ", "targ_ang", "resp_ang", "perc_diff", "resp_onset", "resp_duration", "prac"])
+    log.write([str(trialnr),str(trial['stim0']),str(trial['stim1']), str(trial['cue_direction']), str(trial['probe_direction']), str(targAng), str(respAng), str(feedscore), str(resp_onset), str(resp_len), str(trial['iti']),str(iti_onset), str(stim_onset), str(precue_delay_onset), str(cue_onset), str(postcue_delay_onset), str(probe_onset),"1"])
+
     #draw and wait 
     disp.fill(feedscr)
     feed_onset = disp.show()
@@ -713,9 +759,12 @@ for trialnr, trial in enumerate(trials):
 
     
     # RUN
-    # TODO: Inter-trial-interval.
-    
-    # TODO: Optional drift check.
+    # Inter-trial-interval.
+    disp.fill(delayscr)
+    iti_onset = disp.show()
+    timer.pause(trial['iti'])
+
+    # Optional drift check.
     if (trialnr > 0) and (trialnr % DRIFT_CHECK_FREQ == 0):
         tracker.drift_correction()
 
@@ -751,9 +800,13 @@ for trialnr, trial in enumerate(trials):
 
     # Flush the keyboard.
     kb.get_key(keylist=None, timeout=1, flush=True)
-
-    # TODO: Move stimulus according to input.
-    t1 = copy.copy(probe_onset)
+    #Move stimulus according to input.
+    t1 = copy.copy(probe_onset) # timer 
+    resp_started = False; 
+    resp_len = 0 
+    resp_onset = 0 
+    currang = 0 
+    tarang = 0
     while t1 - probe_onset < RESPONSE_TIMEOUT:
         if MEG:
             btn_list, state = trigbox.get_button_state(button_list = [LEFT_BUT, RIGHT_BUT]) # get button states 
@@ -775,16 +828,32 @@ for trialnr, trial in enumerate(trials):
             raise Exception('DEBUG KILL')
         # Rotate the stimulus accordingly.
         if key == 'f' or button_states[0]:
+            if resp_started == False:
+                resp_started = True 
+                resp_onset = copy.copy(t1) - probe_onset #time stamp of response onset 
             pre_clamp = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori -1
             #print(clamp_angle(pre_clamp))
             probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori = clamp_angle(int(pre_clamp))
+            resp_len = copy.copy(t1) - probe_onset - resp_onset 
         elif key == 'j' or button_states[-1]:
+            if resp_started == False:
+                resp_started = True 
+                resp_onset = copy.copy(t1) - probe_onset#time stamp of response onset 
             pre_clamp = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori +1
             #print(clamp_angle(pre_clamp))
             probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori = clamp_angle(int(pre_clamp))
+            resp_len = copy.copy(t1) - probe_onset - resp_onset
         # Update the display.
         disp.fill(probescr[trial['probe_direction']][probed_stim])
-        t1 = disp.show()
+        #log_det.write(["trialnr", "timestamp", "angle", "event", "targ_ang", "cue_dir"])
+        #write to log file detailed 
+        currang = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori
+            if currang > 180: 
+                currang= currang - 180
+        tarang = stimscr[trial['stimorder']].screen[stim_index[trial['stimorder']][trial['probe_direction']]].ori
+        log_det.write([str(trialnr), str(t1 - probe_onset), str(currang), "0", str(tarang), str(trial['cue_direction'])])
+        t1 = disp.show() #update timestamp
+
 
     # TODO: Log trial input.
     respAng = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori
@@ -803,18 +872,23 @@ for trialnr, trial in enumerate(trials):
    
     ## Present feedback.
     #Calculate difference score
-    a = 180 - abs(abs(respAng - targAng) - 180); 
+    a = 90- abs(abs(respAng - targAng) - 90); 
     #a = respAng - targAng
     #a = (a + 180) % 360 - 180
-    feedscore = numpy.round(100 - (((abs(a)/90)*100) ),1)
+    ##feedscore = numpy.round(100 - (((abs(a)/90)*100) ),1)
+    feedscore = numpy.round(100 - ((a/90)*100))
     #present text
     feedscr.clear()
-    feedtxt = str(feedscore) + " %"
-    feedtxt2 = " Worms until next break: " + str((TRIAL_BREAKS - trialnr % TRIAL_BREAKS)-1) 
+
+    feedtxt = str(int(feedscore)) + " %"
+    feedtxt2 = " Worms until next break: " + str(int((TRIAL_BREAKS - trialnr % TRIAL_BREAKS)-1)) 
 
     feedscr.draw_text(feedtxt, fontsize=25, colour=RED2GREEN[int(numpy.round(feedscore))-1])
     feedscr.draw_text(feedtxt2, fontsize = 25, pos = (DISPCENTRE[0], DISPCENTRE[1] + DISPSIZE[0]*0.2), center=True)
-
+    
+    ##LOG THE TRIAL 
+    #log.write(["trialnr","left_ang","right_ang", "cue_dir", "targ", "targ_ang", "resp_ang", "perc_diff", "resp_onset", "resp_duration", "prac"])
+    log.write([str(trialnr),str(trial['stim0']),str(trial['stim1']), str(trial['cue_direction']), str(trial['probe_direction']), str(targAng), str(respAng), str(feedscore), str(resp_onset), str(resp_len),str(trial['iti']), str(iti_onset), str(stim_onset), str(precue_delay_onset), str(cue_onset), str(postcue_delay_onset), str(probe_onset),"0"])
 
     #draw and wait 
     disp.fill(feedscr)
@@ -835,7 +909,7 @@ disp.show()
 
 # Close the log file.
 log.close()
-
+log_det.close()
 # Close connection to the eye tracker.
 tracker.close()
 

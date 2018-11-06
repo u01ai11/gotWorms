@@ -66,6 +66,10 @@ POSTCUE_DURATION = 992
 RESPONSE_TIMEOUT = 4992
 # feedback duration
 FEED_DURATION = 1992
+#ITI range
+ITI_RANGE = [1242, 1742]
+
+
 # STIMULUS SETTINGS
 # Names of the stimuli.
 STIMNAMES = ["snek_b", "snek_y"]
