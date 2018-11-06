@@ -1,4 +1,6 @@
 # gotWorms
+Part of the MRC-CBU RED Longitudinal Study. 
+
 A retrocueing visuo-spatial working memory task for children. Option to communicate with Elekta Neuromag MEG scanner and response box, with an NI trigger box.
 
 ## Set up
