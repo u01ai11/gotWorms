@@ -71,7 +71,7 @@ ITI_RANGE = [1242, 1742]
 
 # STIMULUS SETTINGS
 # Names of the stimuli.
-STIMNAMES = ["snek_b", "snek_y"]
+STIMNAMES = ["plain_snek_b", "plain_snek_y"]
 # Potential positions of the stimuli.
 STIMPOS = [ \
     (int(DISPCENTRE[0]-DISPSIZE[0]*0.2), DISPCENTRE[1]), \
