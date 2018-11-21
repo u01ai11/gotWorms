@@ -111,9 +111,30 @@ class MRITriggerBox:
             return button_list, l
     
     
-    def wait_for_sync(self, timeout=10.0):
+    def wait_for_sync(self, timeout=None):
         
-        """
+        """Waits until the MRI scanner sends a sync pulse, or until a timeout
+        occurs. Make sure to set the timeout rather high if you're expecting
+        to wait for longer periods of time before starting BOLD acquisition.
+        
+        Keyword Arguments
+        
+        timeout             -   Float or int that indicates the timeout in
+                                seconds. If no button is pressed within the
+                                timeout, this function will return. The
+                                timeout can be None, meaning no timeout will
+                                occur. Default = 10.0
+        
+        Returns
+
+        time, triggered, timed_out
+                            -   time is a float value that reflects the time
+                                in seconds at the time the button press was
+                                detected.
+                                triggered is a bool indicating whether the
+                                scanner sent a pulse.
+                                timed_out is a bool indicating whether a
+                                timeout occured before receiving a pulse.
         """
         
         # Get the starting time.
@@ -124,6 +145,8 @@ class MRITriggerBox:
             # Add the digital input (di) channels.
             task.di_channels.add_di_chan("%s/%s" % \
                 (self._dev_name, self._scan_chan))
+            # Start the task (reduces timing inefficiency in read function).
+            task.start()
 
             # Loop until a signal or a timeout happens.
             triggered = False
@@ -137,8 +160,12 @@ class MRITriggerBox:
                     triggered = True
                     break
                 # Check the time.
-                if t1 - t0 > timeout:
-                    timed_out = True
+                if timeout is not None:
+                    if t1 - t0 > timeout:
+                        timed_out = True
+            
+            # Stop the task.
+            task.stop()
         
         return t1, triggered, timed_out
     
