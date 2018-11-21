@@ -98,6 +98,7 @@ class MEGTriggerBox:
             # Get a single sample from the digital input channels.
             state = task.read(number_of_samples_per_channel=1, \
                 timeout=1.0)
+            if type(state) in [int, float]: state=[state]
         
         return button_list, state
     
