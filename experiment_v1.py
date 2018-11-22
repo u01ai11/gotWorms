@@ -585,7 +585,7 @@ for trialnr, trial in enumerate(prac_trials):
     iti_onset = disp.show()
 
     if MEG: # log 201: ITI onset 
-        trigbox.set_trigger_state(201)
+        trigbox.set_trigger_state(201, RET_ZERO)
         log_det.write([str(trialnr), str(timer.get_time), "0", "201", "0", "0"])
 
     timer.pause(trial['iti'])
@@ -596,7 +596,7 @@ for trialnr, trial in enumerate(prac_trials):
     stim_onset = disp.show()
 
     if MEG: # log 202: stim onset 
-        trigbox.set_trigger_state(202)
+        trigbox.set_trigger_state(202, RET_ZERO)
         log_det.write([str(trialnr), str(timer.get_time), "0", "202", "0", "0"])
 
     timer.pause(STIM_DURATION)
@@ -606,7 +606,7 @@ for trialnr, trial in enumerate(prac_trials):
     precue_delay_onset = disp.show()
 
     if MEG: # log 203: delay onset
-        trigbox.set_trigger_state(203)
+        trigbox.set_trigger_state(203, RET_ZERO)
         log_det.write([str(trialnr), str(timer.get_time), "0", "203", "0", "0"])
 
     timer.pause(MAINTENANCE_DURATION)
@@ -616,7 +616,7 @@ for trialnr, trial in enumerate(prac_trials):
     cue_onset = disp.show()
 
     if MEG: # log 204: cue onset 
-        trigbox.set_trigger_state(204)
+        trigbox.set_trigger_state(204, RET_ZERO)
         log_det.write([str(trialnr), str(timer.get_time), "0", "204", "0", "0"])
 
     timer.pause(CUE_DURATION)
@@ -626,7 +626,7 @@ for trialnr, trial in enumerate(prac_trials):
     postcue_delay_onset = disp.show()
 
     if MEG: # log 205: postcue onset 
-        trigbox.set_trigger_state(205)
+        trigbox.set_trigger_state(205, RET_ZERO)
         log_det.write([str(trialnr), str(timer.get_time), "0", "205", "0", "0"])
 
     timer.pause(POSTCUE_DURATION)
@@ -636,7 +636,7 @@ for trialnr, trial in enumerate(prac_trials):
     probe_onset = disp.show()
 
     if MEG: # log 206: probe onset 
-        trigbox.set_trigger_state(206)
+        trigbox.set_trigger_state(206, RET_ZERO)
         log_det.write([str(trialnr), str(timer.get_time), "0", "206", "0", "0"])
 
     # Flush the keyboard.
@@ -674,7 +674,7 @@ for trialnr, trial in enumerate(prac_trials):
                 resp_started = True 
                 resp_onset = copy.copy(t1) - probe_onset #time stamp of response onset
                 if MEG: # log 207: resp onset 
-                    trigbox.set_trigger_state(207)
+                    trigbox.set_trigger_state(207, RET_ZERO)
                     log_det.write([str(trialnr), str(timer.get_time), "0", "207", "0", "0"]) 
 
             pre_clamp = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori -1
@@ -687,7 +687,7 @@ for trialnr, trial in enumerate(prac_trials):
                 resp_onset = copy.copy(t1) - probe_onset#time stamp of response onset
 
                 if MEG: # log 207: resp onset 
-                    trigbox.set_trigger_state(207)
+                    trigbox.set_trigger_state(207, RET_ZERO)
                     log_det.write([str(trialnr), str(timer.get_time), "0", "207", "0", "0"]) 
 
             pre_clamp = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori +1
@@ -746,7 +746,7 @@ for trialnr, trial in enumerate(prac_trials):
     feed_onset = disp.show()
 
     if MEG: # log 208: feedback onset
-        trigbox.set_trigger_state(208)
+        trigbox.set_trigger_state(208, RET_ZERO)
         log_det.write([str(trialnr), str(timer.get_time), "0", "208", "0", "0"]) 
 
     timer.pause(FEED_DURATION)
@@ -818,7 +818,7 @@ for trialnr, trial in enumerate(trials):
     iti_onset = disp.show()
 
     if MEG: # log 201: ITI onset 
-        trigbox.set_trigger_state(201)
+        trigbox.set_trigger_state(201, RET_ZERO)
         log_det.write([str(trialnr), str(timer.get_time), "0", "201", "0", "0"])
 
     timer.pause(trial['iti'])
@@ -829,7 +829,7 @@ for trialnr, trial in enumerate(trials):
     stim_onset = disp.show()
 
     if MEG: # log 202: stim onset 
-        trigbox.set_trigger_state(202)
+        trigbox.set_trigger_state(202, RET_ZERO)
         log_det.write([str(trialnr), str(timer.get_time), "0", "202", "0", "0"])
 
     timer.pause(STIM_DURATION)
@@ -839,7 +839,7 @@ for trialnr, trial in enumerate(trials):
     precue_delay_onset = disp.show()
 
     if MEG: # log 203: delay onset
-        trigbox.set_trigger_state(203)
+        trigbox.set_trigger_state(203, RET_ZERO)
         log_det.write([str(trialnr), str(timer.get_time), "0", "203", "0", "0"])
 
     timer.pause(MAINTENANCE_DURATION)
@@ -849,7 +849,7 @@ for trialnr, trial in enumerate(trials):
     cue_onset = disp.show()
 
     if MEG: # log 204: cue onset 
-        trigbox.set_trigger_state(204)
+        trigbox.set_trigger_state(204, RET_ZERO)
         log_det.write([str(trialnr), str(timer.get_time), "0", "204", "0", "0"])
 
     timer.pause(CUE_DURATION)
@@ -859,7 +859,7 @@ for trialnr, trial in enumerate(trials):
     postcue_delay_onset = disp.show()
 
     if MEG: # log 205: postcue onset 
-        trigbox.set_trigger_state(205)
+        trigbox.set_trigger_state(205, RET_ZERO)
         log_det.write([str(trialnr), str(timer.get_time), "0", "205", "0", "0"])
 
     timer.pause(POSTCUE_DURATION)
@@ -869,7 +869,7 @@ for trialnr, trial in enumerate(trials):
     probe_onset = disp.show()
 
     if MEG: # log 206: probe onset 
-        trigbox.set_trigger_state(206)
+        trigbox.set_trigger_state(206, RET_ZERO)
         log_det.write([str(trialnr), str(timer.get_time), "0", "206", "0", "0"])
 
     # Flush the keyboard.
@@ -906,7 +906,7 @@ for trialnr, trial in enumerate(trials):
                 resp_started = True 
                 resp_onset = copy.copy(t1) - probe_onset #time stamp of response onset 
                 if MEG: # log 207: resp onset 
-                    trigbox.set_trigger_state(207)
+                    trigbox.set_trigger_state(207, RET_ZERO)
                     log_det.write([str(trialnr), str(timer.get_time), "0", "207", "0", "0"]) 
             pre_clamp = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori -1
             #print(clamp_angle(pre_clamp))
@@ -917,7 +917,7 @@ for trialnr, trial in enumerate(trials):
                 resp_started = True 
                 resp_onset = copy.copy(t1) - probe_onset#time stamp of response onset 
                 if MEG: # log 207: resp onset 
-                    trigbox.set_trigger_state(207)
+                    trigbox.set_trigger_state(207, RET_ZERO)
                     log_det.write([str(trialnr), str(timer.get_time), "0", "207", "0", "0"]) 
             pre_clamp = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori +1
             #print(clamp_angle(pre_clamp))
@@ -974,7 +974,7 @@ for trialnr, trial in enumerate(trials):
     disp.fill(feedscr)
     feed_onset = disp.show()
     if MEG: # log 208: feedback onset
-        trigbox.set_trigger_state(208)
+        trigbox.set_trigger_state(208, RET_ZERO)
         log_det.write([str(trialnr), str(timer.get_time), "0", "208", "0", "0"]) 
     timer.pause(FEED_DURATION)
     # Stop recording eye movements.

@@ -47,12 +47,18 @@ CUE_DIRECTIONS = [-1, 0, 1]
 # run.
 UNIQUE_TRIAL_REPEATS = 40
 
+
+
 #MEG Button box info 
 # button_list = ["S3", "S4", "S5", "S6", "S7"]
 MAIN_BUT = "S3"
 
-LEFT_BUT = "S3"
-RIGHT_BUT = "S4"
+LEFT_BUT = "Rr"
+RIGHT_BUT = "Rg"
+
+# Trigger code return to zer
+RET_ZERO = 10
+
 # TIMING
 # Duration of the stimulus presentation in milliseconds.
 STIM_DURATION = 992
