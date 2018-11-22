@@ -403,6 +403,9 @@ while (time_at_target < 0.2 and time_trial < 10000):
         if state[-1] != 0: # if right button is not 0 
             button_states[-1] = True 
 
+        key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
+
+
     else:
         key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
         button_states = mouse.get_pressed()
@@ -485,6 +488,8 @@ while (time_at_target < 0.2 and time_trial < 10000):
             button_states[0] = True
         if state[-1] != 0: # if right button is not 0 
             button_states[-1] = True 
+
+        key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
 
     else:
         key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
@@ -658,6 +663,9 @@ for trialnr, trial in enumerate(prac_trials):
                 button_states[0] = True
             if state[-1] != 0: # if right button is not 0 
                 button_states[-1] = True 
+
+        key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
+
 
         else:
             key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
@@ -894,6 +902,9 @@ for trialnr, trial in enumerate(trials):
         else:
             key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
             button_states = mouse.get_pressed()
+
+        key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
+
         # Break loop on 'q' press.
         if key == 'q':
             log.close()
