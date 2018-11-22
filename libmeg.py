@@ -83,7 +83,7 @@ class MEGTriggerBox:
         with nidaqmx.Task() as task:
             # Add the digital input (di) channels.
             task.di_channels.add_di_chan( \
-                "%s/%s" % (self._dev, self._button_channels), \
+                "%s/%s" % (self._dev_name, self._button_channels), \
                 line_grouping=LineGrouping.CHAN_PER_LINE)
             # Get a single sample from the digital input channels.
             state = task.read(number_of_samples_per_channel=1, \
