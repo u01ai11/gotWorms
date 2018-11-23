@@ -27,6 +27,7 @@ MEG = False; # Flag for using button box and waiting for pulses/ seinding trigge
 LOGFILENAME = input("Participant name: ") 
 LOGFILE = LOGFILENAME[:] +'_trials'
 DETAILED_LOGFILE = LOGFILENAME[:] +'_detailed'
+EVENT_LOGFILE = LOGFILENAME[:] + '_events'
 
 # Initialise a new Display instance.
 disp = Display()
@@ -42,15 +43,18 @@ disp.show()
 # Open a new log file.
 log = Logfile(filename = LOGFILE)
 log_det = Logfile(filename = DETAILED_LOGFILE)
+log_events = Logfile(filename = EVENT_LOGFILE)
 # TODO: Write header.
 log.write(["trialnr","left_ang","right_ang", "cue_dir", "targ", "targ_ang", "resp_ang", "perc_diff", "resp_onset", "resp_duration", "iti", "iti_onset", "stim_onset","delay_onset", "cue_onset", "postcue_onset","probe_onset", "prac"])
 log_det.write(["trialnr", "timestamp", "angle", "event", "targ_ang", "cue_dir"])
+log_events.write(["Trigger", "Timestamp"])
 # Initialise the eye tracker.
 tracker = EyeTracker(disp)
 
 # Create a new Keyboard instance to process key presses.
 kb = Keyboard(keylist=None, timeout=5000)
 mouse = Mouse()
+mouse.set_visible(visible=False)
 
 # intitliase the MEG interface NI box 
 if MEG:
@@ -184,12 +188,12 @@ instructions = \
 """
 Can you remember which way the snake faced just now? 
 
-Press the keys in front of you to move the snake to
-his position
+Press the keys in front of you to move the snake!
 """
 inst_scr.draw_text(instructions, fontsize=24, pos = (DISPCENTRE[0], DISPCENTRE[1]-200))
 fpath = os.path.join(RESDIR, STIMNAMES[0] + ".png")
 inst_scr.draw_image(fpath, pos=(DISPCENTRE[0], DISPCENTRE[1]+150), scale = 0.7)
+inst_scr.screen[2].ori = 0
 prac_scr = inst_scr
 
 # prac screen 2 
@@ -208,10 +212,10 @@ Press the key once you have looked at BOTH snakes.
 inst_scr.draw_text(instructions, fontsize=24, pos = (DISPCENTRE[0], DISPCENTRE[1]-200))
 fpath = os.path.join(RESDIR, STIMNAMES[0] + ".png")
 inst_scr.draw_image(fpath, pos=(STIMPOS[0][0],STIMPOS[0][1]+200), scale = 0.7)
-inst_scr.screen[2].ori = 100
+inst_scr.screen[2].ori = 10
 fpath = os.path.join(RESDIR, STIMNAMES[1] + ".png")
 inst_scr.draw_image(fpath, pos=(STIMPOS[1][0],STIMPOS[1][1]+200) , scale = 0.7)
-inst_scr.screen[3].ori = 200
+inst_scr.screen[3].ori = 145
 prac_scr2 = inst_scr
 
  
@@ -225,6 +229,7 @@ Which way was this snake facing?
 inst_scr.draw_text(instructions, fontsize=24, pos = (DISPCENTRE[0], DISPCENTRE[1]-200))
 fpath = os.path.join(RESDIR, STIMNAMES[1] + ".png")
 inst_scr.draw_image(fpath, pos=(STIMPOS[1][0],STIMPOS[1][1]+200) , scale = 0.7)
+inst_scr.screen[2].ori = 0
 prac_scr3 = inst_scr
 
 #prac screen 4 
@@ -240,8 +245,8 @@ This time you have to do it as fast as you can.
 
 But make sure to try and be accurate! 
 
-You get a score after each one, try and make it as close
-to 100 as possible. 
+You get a score after each one, 
+try and make it as close to 100 as possible. 
 
 (Press any button to continue.)
 """
@@ -276,7 +281,7 @@ for direction in [0, 1]:
     # Create a screen with two worms.
     stimscr[direction] = Screen()
     # Draw the fixation mark.
-    stimscr[direction].draw_fixation(fixtype='cross', pw=3, diameter=8)
+    stimscr[direction].draw_fixation(fixtype='cross', pw=XPEN, diameter=XDIAM)
     # Add all the stimuli.
     stim_index[direction] = []
     for i, stimname in enumerate(STIMNAMES):
@@ -291,11 +296,14 @@ for direction in [0, 1]:
         stim_index[direction].append(len(stimscr[direction].screen))
         stimscr[direction].draw_image(fpath, pos=pos, scale = 0.7)
 
+
+
+
 # DELAY
 # Create a screen with just a fixation mark.
 delayscr = Screen()
 # Draw the fixation mark.
-delayscr.draw_fixation(fixtype='cross', pw=3, diameter=8)
+delayscr.draw_fixation(fixtype='cross', pw=XPEN, diameter=XDIAM)
 
 # CUE
 # Create a screen with a retro cue.
@@ -304,14 +312,20 @@ for direction in [-1, 0, 1]:
     cuescr[direction] = Screen()
     # Neutral.
     if direction == -1:
-        cue = '<>'
+        cue = CUENAMES[0]
     # Left.
     elif direction == 0:
-        cue = '<'
+        cue = CUENAMES[1] 
     # Right.
     elif direction == 1:
-        cue = '>'
-    cuescr[direction].draw_text(cue, fontsize=42)
+        cue = CUENAMES[2] 
+    cuescr[direction].draw_fixation(fixtype='cross', pw=XPEN, diameter=XDIAM)
+    fpath = os.path.join(RESDIR, cue+".png")
+    cuescr[direction].draw_image(fpath, pos=DISPCENTRE, scale = 0.2)
+
+# PRE_RESP 
+# Create screens with pre-resonse probe item 
+
 
 # PROBE
 # Create screens for each worm, on each location.
@@ -324,7 +338,7 @@ for direction in [0,1]:
         # Create a new screen.
         probescr[direction][stimname] = Screen()
         # Draw the fixation mark.
-        probescr[direction][stimname].draw_fixation(fixtype='cross', pw=3, diameter=8)
+        probescr[direction][stimname].draw_fixation(fixtype='cross', pw=XPEN, diameter=XDIAM)
         # Draw the worm on the correct position.
         fpath = os.path.join(RESDIR, stimname + ".png")
         probe_index[direction] = len(probescr[direction][stimname].screen)
@@ -363,13 +377,11 @@ for scrn in instruction_screens:
     btn_pressed = False
 
     if MEG: # if MEG repeatedly loop until button state changes
-        while btn_pressed != True:
-            btn_list, state = trigbox.get_button_state(button_list = [MAIN_BUT])
-            if state[0] != 0:
-                btn_pressed = True
+        trigbox.wait_for_button_press()
 
     else: 
         mouse.get_clicked()
+
 
 #now show the first practice screen 
 disp.fill(prac_scr)
@@ -423,7 +435,7 @@ while (time_at_target < 0.2 and time_trial < 10000):
         pre_clamp = prac_scr.screen[2].ori +1
         prac_scr.screen[2].ori = clamp_angle(int(pre_clamp))
     # if at target time add the length of this frame 
-    if target_ang - 10 <= prac_scr.screen[2].ori <= target_ang + 10:
+    if target_ang - 20 <= prac_scr.screen[2].ori <= target_ang + 20:
         time_at_target += time_frame
     print(time_at_target)
     # Update the display.
@@ -452,10 +464,7 @@ timer.pause(500) # pause so loads of clicks don't go through
 disp.show()
 
 if MEG: # if MEG repeatedly loop until button state changes
-    while btn_pressed != True:
-        btn_list, state = trigbox.get_button_state(button_list = [MAIN_BUT])
-        if state[0] != 0:
-            btn_pressed = True
+    trigbox.wait_for_button_press()
 
 else: 
     mouse.get_clicked()
@@ -464,7 +473,7 @@ else:
 disp.fill(prac_scr3)
 timer.pause(500) # pause so snake does not appear to be instantly moving
 disp.show()
-target_ang = 200
+target_ang = 90
 start_time = timer.get_time()
 time_at_target = 0; 
 time_last = 0
@@ -508,7 +517,7 @@ while (time_at_target < 0.2 and time_trial < 10000):
         pre_clamp = prac_scr3.screen[2].ori +1
         prac_scr3.screen[2].ori = clamp_angle(int(pre_clamp))
     # if at target time add the length of this frame 
-    if target_ang - 10 <= prac_scr3.screen[2].ori <= target_ang + 10:
+    if target_ang - 20 <= prac_scr3.screen[2].ori <= target_ang + 20:
         time_at_target += time_frame
     print(time_at_target)
     # Update the display.
@@ -529,8 +538,9 @@ if (correct == False):
 
     But make sure to try and be accurate! 
 
-    You get a score after each one, try and make it as close
-    to 100 as possible. 
+    You get a score after each one, 
+
+    try and make it as close to 100 as possible. 
 
     (Press any button to continue.)
     """
@@ -540,11 +550,7 @@ disp.fill(prac_scr4)
 timer.pause(500) # pause so loads of clicks don't go through
 disp.show()
 if MEG: # if MEG repeatedly loop until button state changes
-    while btn_pressed != True:
-        btn_list, state = trigbox.get_button_state(button_list = [MAIN_BUT])
-        if state[0] != 0:
-            btn_pressed = True
-
+    trigbox.wait_for_button_press()
 else: 
     mouse.get_clicked()
 
@@ -591,7 +597,7 @@ for trialnr, trial in enumerate(prac_trials):
 
     if MEG: # log 201: ITI onset 
         trigbox.set_trigger_state(201, RET_ZERO)
-        log_det.write([str(trialnr), str(timer.get_time), "0", "201", "0", "0"])
+        log_events.write([str(trialnr), str(timer.get_time()), "0", "201", "0", "0"])
 
     timer.pause(trial['iti'])
 
@@ -602,7 +608,7 @@ for trialnr, trial in enumerate(prac_trials):
 
     if MEG: # log 202: stim onset 
         trigbox.set_trigger_state(202, RET_ZERO)
-        log_det.write([str(trialnr), str(timer.get_time), "0", "202", "0", "0"])
+        log_events.write([str(trialnr), str(timer.get_time()), "0", "202", "0", "0"])
 
     timer.pause(STIM_DURATION)
     
@@ -612,7 +618,7 @@ for trialnr, trial in enumerate(prac_trials):
 
     if MEG: # log 203: delay onset
         trigbox.set_trigger_state(203, RET_ZERO)
-        log_det.write([str(trialnr), str(timer.get_time), "0", "203", "0", "0"])
+        log_events.write([str(trialnr), str(timer.get_time()), "0", "203", "0", "0"])
 
     timer.pause(MAINTENANCE_DURATION)
     
@@ -620,9 +626,16 @@ for trialnr, trial in enumerate(prac_trials):
     disp.fill(cuescr[trial['cue_direction']])
     cue_onset = disp.show()
 
-    if MEG: # log 204: cue onset 
-        trigbox.set_trigger_state(204, RET_ZERO)
-        log_det.write([str(trialnr), str(timer.get_time), "0", "204", "0", "0"])
+    if MEG: # log 250-252: cue onset 
+        # trigger based on left right or neutral 
+        if trial['cue_direction'] == 0: #left
+            cue_trig = 250
+        if trial['cue_direction'] == 1: # right
+            cue_trig = 251
+        if trial['cue_direction'] == -1: # neutral 
+            cue_trig = 252
+        trigbox.set_trigger_state(cue_trig, RET_ZERO)
+        log_events.write([str(trialnr), str(timer.get_time()), "0", str(cue_trig), "0", "0"])
 
     timer.pause(CUE_DURATION)
     
@@ -632,7 +645,7 @@ for trialnr, trial in enumerate(prac_trials):
 
     if MEG: # log 205: postcue onset 
         trigbox.set_trigger_state(205, RET_ZERO)
-        log_det.write([str(trialnr), str(timer.get_time), "0", "205", "0", "0"])
+        log_events.write([str(trialnr), str(timer.get_time()), "0", "205", "0", "0"])
 
     timer.pause(POSTCUE_DURATION)
     
@@ -640,9 +653,15 @@ for trialnr, trial in enumerate(prac_trials):
     disp.fill(probescr[trial['probe_direction']][probed_stim])
     probe_onset = disp.show()
 
-    if MEG: # log 206: probe onset 
-        trigbox.set_trigger_state(206, RET_ZERO)
-        log_det.write([str(trialnr), str(timer.get_time), "0", "206", "0", "0"])
+    if MEG: # log 260-261: probe onset 
+
+        #
+        if trial['probe_direction'] == 0:
+            prob_trig = 260
+        if trial['probe_direction'] == 1:
+            probe_trig = 261
+        trigbox.set_trigger_state(probe_trig, RET_ZERO)
+        log_events.write([str(trialnr), str(timer.get_time()), "0", string(probe_trig), "0", "0"])
 
     # Flush the keyboard.
     kb.get_key(keylist=None, timeout=1, flush=True)
@@ -664,7 +683,7 @@ for trialnr, trial in enumerate(prac_trials):
             if state[-1] != 0: # if right button is not 0 
                 button_states[-1] = True 
 
-        key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
+            key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
 
 
         else:
@@ -683,7 +702,7 @@ for trialnr, trial in enumerate(prac_trials):
                 resp_onset = copy.copy(t1) - probe_onset #time stamp of response onset
                 if MEG: # log 207: resp onset 
                     trigbox.set_trigger_state(207, RET_ZERO)
-                    log_det.write([str(trialnr), str(timer.get_time), "0", "207", "0", "0"]) 
+                    log_events.write([str(trialnr), str(timer.get_time()), "0", "207", "0", "0"]) 
 
             pre_clamp = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori -1
             #print(clamp_angle(pre_clamp))
@@ -696,7 +715,7 @@ for trialnr, trial in enumerate(prac_trials):
 
                 if MEG: # log 207: resp onset 
                     trigbox.set_trigger_state(207, RET_ZERO)
-                    log_det.write([str(trialnr), str(timer.get_time), "0", "207", "0", "0"]) 
+                    log_events.write([str(trialnr), str(timer.get_time()), "0", "207", "0", "0"]) 
 
             pre_clamp = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori +1
             #print(clamp_angle(pre_clamp))
@@ -710,7 +729,7 @@ for trialnr, trial in enumerate(prac_trials):
         if currang > 180:
             currang = currang - 180 
         tarang = stimscr[trial['stimorder']].screen[stim_index[trial['stimorder']][trial['probe_direction']]].ori
-        log_det.write([str(trialnr), str(t1 - probe_onset), str(currang), "0", str(tarang), str(trial['cue_direction'])])
+        log_det.write([str(trialnr), str(t1 - probe_onset), str(currang), "0", str(tarang), str(timer.get_time())])
         t1 = disp.show() #update timestamp
 
 
@@ -731,7 +750,7 @@ for trialnr, trial in enumerate(prac_trials):
    
     ## Present feedback.
     #Calculate difference score
-    a = 90 - abs(abs(respAng - targAng) - 90); 
+    a = float(90 - abs(abs(respAng - targAng) - 90)); 
     #a = respAng - targAng
     #a = (a + 180) % 360 - 180
     feedscore = numpy.round(100 - ((a/90)*100))
@@ -739,10 +758,10 @@ for trialnr, trial in enumerate(prac_trials):
     #present text
     feedscr.clear()
 
-    feedtxt = str(int(feedscore)) + " %"
+    feedtxt = str(int(feedscore)) + " Points"
     #feedtxt2 = " Worms until next break: " + str((TRIAL_BREAKS - trialnr % TRIAL_BREAKS)-1) 
 
-    feedscr.draw_text(feedtxt, fontsize=25, colour=RED2GREEN[int(numpy.round(feedscore))-1])
+    feedscr.draw_text(feedtxt, fontsize=40, colour=RED2GREEN[int(numpy.round(feedscore))-1])
     #feedscr.draw_text(feedtxt2, fontsize = 25, pos = (DISPCENTRE[0], DISPCENTRE[1] + DISPSIZE[0]*0.2), center=True)
     
     ##LOG THE TRIAL 
@@ -755,7 +774,7 @@ for trialnr, trial in enumerate(prac_trials):
 
     if MEG: # log 208: feedback onset
         trigbox.set_trigger_state(208, RET_ZERO)
-        log_det.write([str(trialnr), str(timer.get_time), "0", "208", "0", "0"]) 
+        log_events.write([str(trialnr), str(timer.get_time()), "0", "208", "0", "0"]) 
 
     timer.pause(FEED_DURATION)
     # Stop recording eye movements.
@@ -766,11 +785,7 @@ disp.fill(prac_scr5)
 timer.pause(500) # pause so loads of clicks don't go through
 disp.show()
 if MEG: # if MEG repeatedly loop until button state changes
-    while btn_pressed != True:
-        btn_list, state = trigbox.get_button_state(button_list = [MAIN_BUT])
-        if state[0] != 0:
-            btn_pressed = True
-
+    trigbox.wait_for_button_press()
 else: 
     mouse.get_clicked()
 
@@ -786,11 +801,7 @@ for trialnr, trial in enumerate(trials):
         disp.fill(breakscr)
         start_break = disp.show()
         if MEG: # if MEG repeatedly loop until button state changes
-            while btn_pressed != True:
-                btn_list, state = trigbox.get_button_state(button_list = [MAIN_BUT])
-                if state[0] != 0:
-                    btn_pressed = True
-
+            trigbox.wait_for_button_press()
         else: 
             mouse.get_clicked()
 
@@ -827,7 +838,7 @@ for trialnr, trial in enumerate(trials):
 
     if MEG: # log 201: ITI onset 
         trigbox.set_trigger_state(201, RET_ZERO)
-        log_det.write([str(trialnr), str(timer.get_time), "0", "201", "0", "0"])
+        log_events.write([str(trialnr), str(timer.get_time()), "0", "201", "0", "0"])
 
     timer.pause(trial['iti'])
 
@@ -838,7 +849,7 @@ for trialnr, trial in enumerate(trials):
 
     if MEG: # log 202: stim onset 
         trigbox.set_trigger_state(202, RET_ZERO)
-        log_det.write([str(trialnr), str(timer.get_time), "0", "202", "0", "0"])
+        log_events.write([str(trialnr), str(timer.get_time()), "0", "202", "0", "0"])
 
     timer.pause(STIM_DURATION)
     
@@ -848,7 +859,7 @@ for trialnr, trial in enumerate(trials):
 
     if MEG: # log 203: delay onset
         trigbox.set_trigger_state(203, RET_ZERO)
-        log_det.write([str(trialnr), str(timer.get_time), "0", "203", "0", "0"])
+        log_events.write([str(trialnr), str(timer.get_time()), "0", "203", "0", "0"])
 
     timer.pause(MAINTENANCE_DURATION)
     
@@ -856,9 +867,16 @@ for trialnr, trial in enumerate(trials):
     disp.fill(cuescr[trial['cue_direction']])
     cue_onset = disp.show()
 
-    if MEG: # log 204: cue onset 
-        trigbox.set_trigger_state(204, RET_ZERO)
-        log_det.write([str(trialnr), str(timer.get_time), "0", "204", "0", "0"])
+    if MEG: # log 250-252: cue onset 
+        # trigger based on left right or neutral 
+        if trial['cue_direction'] == 0: #left
+            cue_trig = 250
+        if trial['cue_direction'] == 1: # right
+            cue_trig = 251
+        if trial['cue_direction'] == -1: # neutral 
+            cue_trig = 252
+        trigbox.set_trigger_state(cue_trig, RET_ZERO)
+        log_events.write([str(trialnr), str(timer.get_time()), "0", str(cue_trig), "0", "0"])
 
     timer.pause(CUE_DURATION)
     
@@ -868,7 +886,7 @@ for trialnr, trial in enumerate(trials):
 
     if MEG: # log 205: postcue onset 
         trigbox.set_trigger_state(205, RET_ZERO)
-        log_det.write([str(trialnr), str(timer.get_time), "0", "205", "0", "0"])
+        log_events.write([str(trialnr), str(timer.get_time()), "0", "205", "0", "0"])
 
     timer.pause(POSTCUE_DURATION)
     
@@ -876,9 +894,15 @@ for trialnr, trial in enumerate(trials):
     disp.fill(probescr[trial['probe_direction']][probed_stim])
     probe_onset = disp.show()
 
-    if MEG: # log 206: probe onset 
-        trigbox.set_trigger_state(206, RET_ZERO)
-        log_det.write([str(trialnr), str(timer.get_time), "0", "206", "0", "0"])
+    if MEG: # log 260-261: probe onset 
+
+        #
+        if trial['probe_direction'] == 0:
+            prob_trig = 260
+        if trial['probe_direction'] == 1:
+            probe_trig = 261
+        trigbox.set_trigger_state(probe_trig, RET_ZERO)
+        log_events.write([str(trialnr), str(timer.get_time()), "0", string(probe_trig), "0", "0"])
 
     # Flush the keyboard.
     kb.get_key(keylist=None, timeout=1, flush=True)
@@ -918,7 +942,7 @@ for trialnr, trial in enumerate(trials):
                 resp_onset = copy.copy(t1) - probe_onset #time stamp of response onset 
                 if MEG: # log 207: resp onset 
                     trigbox.set_trigger_state(207, RET_ZERO)
-                    log_det.write([str(trialnr), str(timer.get_time), "0", "207", "0", "0"]) 
+                    log_events.write([str(trialnr), str(timer.get_time()), "0", "207", "0", "0"]) 
             pre_clamp = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori -1
             #print(clamp_angle(pre_clamp))
             probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori = clamp_angle(int(pre_clamp))
@@ -929,7 +953,7 @@ for trialnr, trial in enumerate(trials):
                 resp_onset = copy.copy(t1) - probe_onset#time stamp of response onset 
                 if MEG: # log 207: resp onset 
                     trigbox.set_trigger_state(207, RET_ZERO)
-                    log_det.write([str(trialnr), str(timer.get_time), "0", "207", "0", "0"]) 
+                    log_events.write([str(trialnr), str(timer.get_time()), "0", "207", "0", "0"]) 
             pre_clamp = probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori +1
             #print(clamp_angle(pre_clamp))
             probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori = clamp_angle(int(pre_clamp))
@@ -963,7 +987,7 @@ for trialnr, trial in enumerate(trials):
    
     ## Present feedback.
     #Calculate difference score
-    a = 90- abs(abs(respAng - targAng) - 90); 
+    a = float(90- abs(abs(respAng - targAng) - 90)); 
     #a = respAng - targAng
     #a = (a + 180) % 360 - 180
     ##feedscore = numpy.round(100 - (((abs(a)/90)*100) ),1)
@@ -971,10 +995,10 @@ for trialnr, trial in enumerate(trials):
     #present text
     feedscr.clear()
 
-    feedtxt = str(int(feedscore)) + " %"
+    feedtxt = str(int(feedscore)) + " Points"
     feedtxt2 = " Worms until next break: " + str(int((TRIAL_BREAKS - trialnr % TRIAL_BREAKS)-1)) 
 
-    feedscr.draw_text(feedtxt, fontsize=25, colour=RED2GREEN[int(numpy.round(feedscore))-1])
+    feedscr.draw_text(feedtxt, fontsize=40, colour=RED2GREEN[int(numpy.round(feedscore))-1])
     feedscr.draw_text(feedtxt2, fontsize = 25, pos = (DISPCENTRE[0], DISPCENTRE[1] + DISPSIZE[0]*0.2), center=True)
     
     ##LOG THE TRIAL 
@@ -986,7 +1010,7 @@ for trialnr, trial in enumerate(trials):
     feed_onset = disp.show()
     if MEG: # log 208: feedback onset
         trigbox.set_trigger_state(208, RET_ZERO)
-        log_det.write([str(trialnr), str(timer.get_time), "0", "208", "0", "0"]) 
+        log_events.write([str(trialnr), str(timer.get_time()), "0", "208", "0", "0"]) 
     timer.pause(FEED_DURATION)
     # Stop recording eye movements.
     tracker.stop_recording()
