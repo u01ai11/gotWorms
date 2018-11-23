@@ -894,13 +894,13 @@ for trialnr, trial in enumerate(trials):
     disp.fill(probescr[trial['probe_direction']][probed_stim])
     probe_onset = disp.show()
 
-    if MEG: # log 260-261: probe onset 
+    if MEG: # log 240-241: probe onset 
 
         #
         if trial['probe_direction'] == 0:
-            prob_trig = 260
+            prob_trig = 240
         if trial['probe_direction'] == 1:
-            probe_trig = 261
+            probe_trig = 241
         trigbox.set_trigger_state(probe_trig, RET_ZERO)
         log_events.write([str(trialnr), str(timer.get_time()), "0", string(probe_trig), "0", "0"])
 
