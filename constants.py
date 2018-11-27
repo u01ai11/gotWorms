@@ -4,6 +4,11 @@
 
 import os
 
+
+MEG = True; # Flag for using button box and waiting for pulses/ seinding triggers etc 
+
+
+
 # DISPLAY SETTINGS
 # Display back-end ('pygame' or 'psychopy').
 # NOTE: Use PsychoPy, as we're doing PsychoPy-specific stuff with orientations.
@@ -40,6 +45,13 @@ if not os.path.isdir(DATADIR):
 if not os.path.isdir(RESDIR):
     raise Exception("ERROR: Missing the 'resources' directory at this directory:\n'%s'" \
         % (RESDIR))
+
+# get participant info etc
+LOGFILENAME = raw_input("Participant name: ") 
+LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] +'_trials')
+DETAILED_LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] +'_detailed')
+EVENT_LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] + '_events')
+
 
 # EXPERIMENT SETTINGS
 # Stimulus order: 0 for A left and B right; 1 for vice versa.

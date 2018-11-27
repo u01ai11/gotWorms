@@ -215,7 +215,7 @@ class MEGTriggerBox:
 
             # Add the digital input (di) channels.
             task.di_channels.add_di_chan( \
-                "%s/%s" % (self._dev, self._button_channels), \
+                "%s/%s" % (self._dev_name, self._button_channels), \
                 line_grouping=LineGrouping.CHAN_PER_LINE)
             # Start the task (this will reduce timing inefficience when
             # calling the task.read function).

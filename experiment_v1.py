@@ -16,18 +16,8 @@ import pygaze.libtime as timer
 from libmeg import *
 
 
-MEG = False; # Flag for using button box and waiting for pulses/ seinding triggers etc 
-
-
-
 # # # # #
 # INITIALISE
-
-# get participant info etc
-LOGFILENAME = input("Participant name: ") 
-LOGFILE = LOGFILENAME[:] +'_trials'
-DETAILED_LOGFILE = LOGFILENAME[:] +'_detailed'
-EVENT_LOGFILE = LOGFILENAME[:] + '_events'
 
 # Initialise a new Display instance.
 disp = Display()
@@ -656,10 +646,14 @@ for trialnr, trial in enumerate(prac_trials):
     if MEG: # log 260-261: probe onset 
 
         #
-        if trial['probe_direction'] == 0:
-            prob_trig = 260
-        if trial['probe_direction'] == 1:
-            probe_trig = 261
+        if trial['probe_direction'] == -1:
+            prob_trig = 240
+        elif trial['probe_direction'] == 0:
+            prob_trig = 241
+        elif trial['probe_direction'] == 1:
+            probe_trig = 242
+        else:
+            probe_trig = 243
         trigbox.set_trigger_state(probe_trig, RET_ZERO)
         log_events.write([str(trialnr), str(timer.get_time()), "0", string(probe_trig), "0", "0"])
 
@@ -903,6 +897,9 @@ for trialnr, trial in enumerate(trials):
             probe_trig = 241
         trigbox.set_trigger_state(probe_trig, RET_ZERO)
         log_events.write([str(trialnr), str(timer.get_time()), "0", string(probe_trig), "0", "0"])
+
+    # Reset stimulus orientation.
+    probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori = 0
 
     # Flush the keyboard.
     kb.get_key(keylist=None, timeout=1, flush=True)
