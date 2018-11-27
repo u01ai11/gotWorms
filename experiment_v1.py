@@ -633,6 +633,7 @@ for trialnr, trial in enumerate(prac_trials):
 
     timer.pause(CUE_DURATION)
     
+    
     # Present delay screen.
     disp.fill(delayscr)
     postcue_delay_onset = disp.show()
@@ -640,9 +641,12 @@ for trialnr, trial in enumerate(prac_trials):
     if MEG: # log 205: postcue onset 
         trigbox.set_trigger_state(205, RET_ZERO)
         log_events.write([str(trialnr), str(timer.get_time()), "0", "205", "0", "0"])
-
+    
+    # Reset stimulus orientation.
+    probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori = 0
     timer.pause(POSTCUE_DURATION)
     
+
     # Present probe screen.
     disp.fill(probescr[trial['probe_direction']][probed_stim])
     probe_onset = disp.show()
@@ -884,6 +888,10 @@ for trialnr, trial in enumerate(trials):
         trigbox.set_trigger_state(205, RET_ZERO)
         log_events.write([str(trialnr), str(timer.get_time()), "0", "205", "0", "0"])
 
+
+    # Reset stimulus orientation.
+    probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori = 0
+    
     timer.pause(POSTCUE_DURATION)
     
     # Present probe screen.
@@ -900,8 +908,6 @@ for trialnr, trial in enumerate(trials):
         trigbox.set_trigger_state(probe_trig, RET_ZERO)
         log_events.write([str(trialnr), str(timer.get_time()), "0", str(probe_trig), "0", "0"])
 
-    # Reset stimulus orientation.
-    probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori = 0
 
     # Flush the keyboard.
     kb.get_key(keylist=None, timeout=1, flush=True)
