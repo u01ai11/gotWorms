@@ -66,7 +66,7 @@ UNIQUE_TRIAL_REPEATS = 40
 
 #MEG Button box info 
 # button_list = ["S3", "S4", "S5", "S6", "S7"]
-MAIN_BUT = "S3"
+MAIN_BUT = "Rr"
 
 LEFT_BUT = "Rr"
 RIGHT_BUT = "Rg"

@@ -15,6 +15,7 @@ import pygaze.libtime as timer
 
 from libmeg import *
 
+#%%
 
 # # # # #
 # INITIALISE
@@ -70,6 +71,8 @@ if MEG:
 # - cueside (0 for left, 1 for right)
 # - probeside (0 for left, 1 for right)
 # - probestim (should follow from stimulus direction and probeside)
+    
+#%%
 trials = []
 
 
@@ -130,6 +133,7 @@ prac_trials = trials[0:9]
 #Re-shuffle trials to avoid repeat of the ten first trials
 random.shuffle(trials)
 
+#%%
 
 # # # # #
 # SCREENS
@@ -646,16 +650,14 @@ for trialnr, trial in enumerate(prac_trials):
     if MEG: # log 260-261: probe onset 
 
         #
-        if trial['probe_direction'] == -1:
-            prob_trig = 240
-        elif trial['probe_direction'] == 0:
-            prob_trig = 241
-        elif trial['probe_direction'] == 1:
-            probe_trig = 242
-        else:
-            probe_trig = 243
+        print(trial['probe_direction'])
+        if trial['probe_direction'] == 0: # Left
+            probe_trig = 240
+        elif trial['probe_direction'] == 1: #Right
+            probe_trig = 241
+
         trigbox.set_trigger_state(probe_trig, RET_ZERO)
-        log_events.write([str(trialnr), str(timer.get_time()), "0", string(probe_trig), "0", "0"])
+        log_events.write([str(trialnr), str(timer.get_time()), "0", str(probe_trig), "0", "0"])
 
     # Flush the keyboard.
     kb.get_key(keylist=None, timeout=1, flush=True)
@@ -891,12 +893,12 @@ for trialnr, trial in enumerate(trials):
     if MEG: # log 240-241: probe onset 
 
         #
-        if trial['probe_direction'] == 0:
-            prob_trig = 240
-        if trial['probe_direction'] == 1:
+        if trial['probe_direction'] == 0: #Left
+            probe_trig = 240
+        if trial['probe_direction'] == 1: # Right
             probe_trig = 241
         trigbox.set_trigger_state(probe_trig, RET_ZERO)
-        log_events.write([str(trialnr), str(timer.get_time()), "0", string(probe_trig), "0", "0"])
+        log_events.write([str(trialnr), str(timer.get_time()), "0", str(probe_trig), "0", "0"])
 
     # Reset stimulus orientation.
     probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori = 0

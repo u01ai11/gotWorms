@@ -1,0 +1,1 @@
+trialnr	left_ang	right_ang	cue_dir	targ	targ_ang	resp_ang	perc_diff	resp_onset	resp_duration	iti	iti_onset	stim_onset	delay_onset	cue_onset	postcue_onset	probe_onset	prac
