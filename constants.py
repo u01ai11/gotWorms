@@ -3,9 +3,9 @@
 # Version 1 (2018-07-26)
 
 import os
+import sys 
 
-
-MEG = True; # Flag for using button box and waiting for pulses/ seinding triggers etc 
+MEG = False; # Flag for using button box and waiting for pulses/ seinding triggers etc 
 
 
 
@@ -47,10 +47,22 @@ if not os.path.isdir(RESDIR):
         % (RESDIR))
 
 # get participant info etc
-LOGFILENAME = raw_input("Participant name: ") 
-LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] +'_trials')
-DETAILED_LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] +'_detailed')
-EVENT_LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] + '_events')
+
+
+# get participant info etc
+if sys.version_info[0] < 3:
+	LOGFILENAME = raw_input("Participant name: ") 
+	LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] +'_trials')
+	DETAILED_LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] +'_detailed')
+	EVENT_LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] + '_events')
+else:
+	LOGFILENAME = "Alex_trials"
+	LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] +'_trials')
+	DETAILED_LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] +'_detailed')
+	EVENT_LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] + '_events')
+# response mapping 
+# 0 = go squares, no-go circles 
+# 1 = go circles, no-go squares
 
 
 # EXPERIMENT SETTINGS
@@ -66,7 +78,7 @@ UNIQUE_TRIAL_REPEATS = 40
 
 #MEG Button box info 
 # button_list = ["S3", "S4", "S5", "S6", "S7"]
-MAIN_BUT = "Rr"
+MAIN_BUT = "Ly"
 
 LEFT_BUT = "Rr"
 RIGHT_BUT = "Rg"
@@ -94,6 +106,7 @@ ITI_RANGE = [1242, 1742]
 # Names of the stimuli.
 STIMNAMES = ["plain_fat_snek_b", "plain_fat_snek_y"]
 CUENAMES = ["cue_n", "cue_l", "cue_r"]
+PRENAMES = ["pre_b", "pre_y"]
 # Potential positions of the stimuli.
 STIMPOS = [ \
     (int(DISPCENTRE[0]-DISPSIZE[0]*0.2), DISPCENTRE[1]), \
