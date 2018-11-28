@@ -224,7 +224,8 @@ class MEGTriggerBox:
             # Run until a timeout or a button press occurs.
             button = None
             pressed = False
-            while not pressed and t1 - t0 < timeout:
+            timed_out = False
+            while not pressed and not timed_out:
 
                 # Get a single sample from the digital input channels.
                 state = task.read(number_of_samples_per_channel=1, \
@@ -238,6 +239,10 @@ class MEGTriggerBox:
                         pressed = True
                         button = self._button_list[i]
                         break
+                
+                # Check whether a timeout occurred.
+                if timeout is not None:
+                    timed_out = t1 - t0 < timeout
             
             # Stop the task.
             task.stop()
