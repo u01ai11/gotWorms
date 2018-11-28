@@ -643,7 +643,7 @@ for trialnr, trial in enumerate(prac_trials):
         log_events.write([str(trialnr), str(timer.get_time()), "0", "205", "0", "0"])
     
     # Reset stimulus orientation.
-    probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori = 0
+    probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori = 90
     timer.pause(POSTCUE_DURATION)
     
 
@@ -890,7 +890,7 @@ for trialnr, trial in enumerate(trials):
 
 
     # Reset stimulus orientation.
-    probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori = 0
+    probescr[trial['probe_direction']][probed_stim].screen[probe_index[trial['probe_direction']]].ori = 90
     
     timer.pause(POSTCUE_DURATION)
     
