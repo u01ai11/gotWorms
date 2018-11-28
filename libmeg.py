@@ -203,6 +203,9 @@ class MEGTriggerBox:
                 allow.append(self._button_list.index(b))
         else:
             allow = range(len(self._button_list))
+        
+        # Wait for all allowed buttons to be up.
+        self._wait_for_button_up(buttons=allow)
 
         # Get the starting time.
         t0 = time.time()
@@ -248,5 +251,54 @@ class MEGTriggerBox:
             task.stop()
                 
         return button, t1
+    
+    
+    def _wait_for_button_up(self, buttons=None):
+        
+        """Helper function that returns when all or selected are up, i.e. when
+        their channel states are False.
+        
+        Arguments
+        
+        buttons             -   List of ints that represent indices within
+                                the internal list of buttons, or None to
+                                select all buttons.
+        """
+        
+        if buttons is None:
+            buttons = range(len(self._button_list))
+        
+        # Create a new Task to listen in on the button channels. Using a with
+        # statement will automatically close the Task if an error happens
+        # during execution, leaving the NI box in a better state.
+        with nidaqmx.Task() as task:
+
+            # Add the digital input (di) channels.
+            task.di_channels.add_di_chan( \
+                "%s/%s" % (self._dev_name, self._button_channels), \
+                line_grouping=LineGrouping.CHAN_PER_LINE)
+            # Start the task (this will reduce timing inefficience when
+            # calling the task.read function).
+            task.start()
+
+            # Run until a timeout or a button press occurs.
+            pressed = len(buttons)
+            while pressed != 0:
+
+                # Get a single sample from the digital input channels.
+                state = task.read(number_of_samples_per_channel=1, \
+                    timeout=0.001)
+
+                # Check whether any of the allowed buttons were pressed.
+                pressed = 0
+                for i in buttons:
+                    if state[i][0]:
+                        pressed += 1
+                        break
+            
+            # Stop the task.
+            task.stop()
+                
+        return True
                         
 
