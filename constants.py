@@ -5,8 +5,8 @@
 import os
 
 
-MEG = True; # Flag for using button box and waiting for pulses/ seinding triggers etc 
-
+# Flag for using button box and waiting for pulses/ seinding triggers etc 
+MEG = True
 
 
 # DISPLAY SETTINGS
