@@ -5,7 +5,7 @@
 import os
 import sys 
 import tkinter as tk
-MEG = False; # Flag for using button box and waiting for pulses/ seinding triggers etc 
+MEG = True; # Flag for using button box and waiting for pulses/ seinding triggers etc 
 
 
 
@@ -30,9 +30,11 @@ SCREENDIST = 62.0
 RED2GREEN= ["#FF0000", "#FC0100", "#F90200", "#F70300", "#F40500", "#F20600", "#EF0700", "#EC0900", "#EA0A00", "#E70B00", "#E50C00", "#E20E00", "#E00F00", "#DD1000", "#DA1200", "#D81300", "#D51400", "#D31500", "#D01700", "#CE1800", "#CB1900", "#C81B00", "#C61C00", "#C31D00", "#C11F00", "#BE2000", "#BC2100", "#B92200", "#B62400", "#B42500", "#B12600", "#AF2800", "#AC2900", "#AA2A00", "#A72B00", "#A42D00", "#A22E00", "#9F2F00", "#9D3100", "#9A3200", "#973300", "#953500", "#923600", "#903700", "#8D3800", "#8B3A00", "#883B00", "#853C00", "#833E00", "#803F00", "#7E4000", "#7B4100", "#794300", "#764400", "#734500", "#714700", "#6E4800", "#6C4900", "#694A00", "#674C00", "#644D00", "#614E00", "#5F5000", "#5C5100", "#5A5200", "#575400", "#555500", "#525600", "#4F5700", "#4D5900", "#4A5A00", "#485B00", "#455D00", "#425E00", "#405F00", "#3D6000", "#3B6200", "#386300", "#366400", "#336600", "#306700", "#2E6800", "#2B6A00", "#296B00", "#266C00", "#246D00", "#216F00", "#1E7000", "#1C7100", "#197300", "#177400", "#147500", "#127600", "#0F7800", "#0C7900", "#0A7A00", "#077C00", "#057D00", "#027E00", "#008000"]
 
 
+
 #penwidth and size of fixation 
 XPEN =2
-XDIAM = 15
+XDIAM = 25
+MAIN_FONTSIZE = 35
 
 # FILES AND FOLDERS
 root = tk.Tk()
@@ -134,8 +136,8 @@ STIMPOS = [ \
 TRIAL_BREAKS = 10
 # EYE TRACKER SETTINGS
 # Brand of the eye tracker.
-TRACKERTYPE = 'eyelink'
-DUMMYMODE = True
+TRACKERTYPE = 'dumbdummy'
+DUMMYMODE = False
 # Number of trials between each drift check.
 DRIFT_CHECK_FREQ = 20
 

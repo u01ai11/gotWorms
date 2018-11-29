@@ -680,6 +680,7 @@ for trialnr, trial in enumerate(prac_trials):
     currang = 0 
     tarang = 0
     end_press = False
+    
     while (t1 - probe_onset < RESPONSE_TIMEOUT and end_press == False):
         if MEG:
             btn_list, state = trigbox.get_button_state(button_list = [LEFT_BUT, RIGHT_BUT, MAIN_BUT]) # get button states 
@@ -771,7 +772,7 @@ for trialnr, trial in enumerate(prac_trials):
     #feedtxt2 = " Worms until next break: " + str((TRIAL_BREAKS - trialnr % TRIAL_BREAKS)-1) 
 
     feedscr.draw_text(feedtxt, fontsize=40, colour=RED2GREEN[int(numpy.round(feedscore))-1])
-    #feedscr.draw_text(feedtxt2, fontsize = 25, pos = (DISPCENTRE[0], DISPCENTRE[1] + DISPSIZE[0]*0.2), center=True)
+    #feedscr.draw_text(feedtxt2, fontsize = MAIN_FONTSIZE, pos = (DISPCENTRE[0], DISPCENTRE[1] + DISPSIZE[0]*0.2), center=True)
     
     ##LOG THE TRIAL 
     #log.write(["trialnr","left_ang","right_ang", "cue_dir", "targ", "targ_ang", "resp_ang", "perc_diff", "resp_onset", "resp_duration", "prac"])
@@ -799,6 +800,7 @@ else:
     mouse.get_clicked()
 
 
+block_scores = [0]
 # # # # #
 # RUN TRIALS
 
@@ -807,13 +809,31 @@ for trialnr, trial in enumerate(trials):
 
     if trialnr % TRIAL_BREAKS == 0:
         print('breaktime')
+        
+        #BREAK SCREEN
+        breakscr = Screen()
+        breaktxt = \
+        """
+        Points for last block: """ +str(int(numpy.mean(block_scores))) + \
+        """
+        
+        This is one of your breaks. 
+        
+        You will have another in """ + str(int(TRIAL_BREAKS)) + "more trials"\
+        """ 
+        
+        PRESS ANY BUTTON TO END THE BREAK
+        """
+        breakscr.draw_text(breaktxt, fontsize=24)
+
         disp.fill(breakscr)
         start_break = disp.show()
         if MEG: # if MEG repeatedly loop until button state changes
             trigbox.wait_for_button_press()
         else: 
             mouse.get_clicked()
-
+    
+    block_scores = [];
     # PREPARE
     # If there is a neutral cue, randomly choose the probe direction.
     if trial['cue_direction'] == -1:
@@ -927,15 +947,22 @@ for trialnr, trial in enumerate(trials):
     resp_onset = 0 
     currang = 0 
     tarang = 0
-    while t1 - probe_onset < RESPONSE_TIMEOUT:
+    end_press = False
+    
+    while (t1 - probe_onset < RESPONSE_TIMEOUT and end_press == False):
         if MEG:
-            btn_list, state = trigbox.get_button_state(button_list = [LEFT_BUT, RIGHT_BUT]) # get button states 
+            btn_list, state = trigbox.get_button_state(button_list = [LEFT_BUT, RIGHT_BUT, MAIN_BUT]) # get button states 
             # we need to replicate the get_pressed() pygame functionality 
             button_states = [False, False] # list of bools 
             if state[0] != 0: # if left button is not 0
                 button_states[0] = True
-            if state[-1] != 0: # if right button is not 0 
+            if state[1] != 0: # if right button is not 0 
                 button_states[-1] = True 
+            if state[2] != 0:
+                end_press = True 
+
+            key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
+
 
         else:
             key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
@@ -1013,8 +1040,9 @@ for trialnr, trial in enumerate(trials):
     feedtxt2 = " Worms until next break: " + str(int((TRIAL_BREAKS - trialnr % TRIAL_BREAKS)-1)) 
 
     feedscr.draw_text(feedtxt, fontsize=40, colour=RED2GREEN[int(numpy.round(feedscore))-1])
-    feedscr.draw_text(feedtxt2, fontsize = 25, pos = (DISPCENTRE[0], DISPCENTRE[1] + DISPSIZE[0]*0.2), center=True)
+    feedscr.draw_text(feedtxt2, fontsize = MAIN_FONTSIZE, pos = (DISPCENTRE[0], DISPCENTRE[1] + DISPSIZE[0]*0.2), center=True)
     
+    block_scores.append(int(feedscore))
     ##LOG THE TRIAL 
     #log.write(["trialnr","left_ang","right_ang", "cue_dir", "targ", "targ_ang", "resp_ang", "perc_diff", "resp_onset", "resp_duration", "prac"])
     log.write([str(trialnr),str(trial['stim0']),str(trial['stim1']), str(trial['cue_direction']), str(trial['probe_direction']), str(targAng), str(respAng), str(feedscore), str(resp_onset), str(resp_len),str(trial['iti']), str(iti_onset), str(stim_onset), str(precue_delay_onset), str(cue_onset), str(postcue_delay_onset), str(probe_onset),"0"])
