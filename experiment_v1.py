@@ -182,7 +182,8 @@ instructions = \
 """
 Can you remember which way the snake faced just now? 
 
-Press the keys in front of you to move the snake!
+Press the red and green keys to turn the snake.
+Press the yellow key in your leff hand when you have remembered. 
 """
 inst_scr.draw_text(instructions, fontsize=24, pos = (DISPCENTRE[0], DISPCENTRE[1]-200))
 fpath = os.path.join(RESDIR, STIMNAMES[0] + ".png")
@@ -389,7 +390,8 @@ time_last = 0
 time_now = 0
 time_trial = 0
 correct = True; 
-while (time_at_target < 0.2 and time_trial < 10000):
+end_press = False
+while (time_at_target < 0.2 and time_trial < 10000 and end_press == False):
     # get current time 
     time_now = timer.get_time()
     #since start
@@ -401,14 +403,15 @@ while (time_at_target < 0.2 and time_trial < 10000):
     # Poll the input device.
     
     if MEG:
-        btn_list, state = trigbox.get_button_state(button_list = [LEFT_BUT, RIGHT_BUT]) # get button states 
+        btn_list, state = trigbox.get_button_state(button_list = [LEFT_BUT, RIGHT_BUT, MAIN_BUT]) # get button states 
         # we need to replicate the get_pressed() pygame functionality 
         button_states = [False, False] # list of bools 
         if state[0] != 0: # if left button is not 0
             button_states[0] = True
-        if state[-1] != 0: # if right button is not 0 
+        if state[1] != 0: # if right button is not 0 
             button_states[-1] = True 
-
+        if state[2] != 0:
+            end_press = True
         key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
 
 
@@ -429,7 +432,7 @@ while (time_at_target < 0.2 and time_trial < 10000):
         pre_clamp = prac_scr.screen[2].ori +1
         prac_scr.screen[2].ori = clamp_angle(int(pre_clamp))
     # if at target time add the length of this frame 
-    if target_ang - 20 <= prac_scr.screen[2].ori <= target_ang + 20:
+    if target_ang - 30 <= prac_scr.screen[2].ori <= target_ang + 30:
         time_at_target += time_frame
     print(time_at_target)
     # Update the display.
@@ -438,6 +441,7 @@ while (time_at_target < 0.2 and time_trial < 10000):
     #time at this frame 
     time_last = timer.get_time()
 
+end_press = False
 # Second practice screen 
 
 if (correct == False):
@@ -474,7 +478,7 @@ time_last = 0
 time_now = 0
 time_trial = 0
 correct = True;
-while (time_at_target < 0.2 and time_trial < 10000):
+while (time_at_target < 0.2 and time_trial < 10000 and end_press == False):
     # get current time 
     time_now = timer.get_time()
     # duration of the last frame 
@@ -484,13 +488,15 @@ while (time_at_target < 0.2 and time_trial < 10000):
     if (time_trial > 10000):
         correct = False; 
     if MEG:
-        btn_list, state = trigbox.get_button_state(button_list = [LEFT_BUT, RIGHT_BUT]) # get button states 
+        btn_list, state = trigbox.get_button_state(button_list = [LEFT_BUT, RIGHT_BUT, MAIN_BUT]) # get button states 
         # we need to replicate the get_pressed() pygame functionality 
         button_states = [False, False] # list of bools 
         if state[0] != 0: # if left button is not 0
             button_states[0] = True
-        if state[-1] != 0: # if right button is not 0 
+        if state[1] != 0: # if right button is not 0 
             button_states[-1] = True 
+        if state[2] != 0:
+            end_press = True 
 
         key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
 
@@ -511,7 +517,7 @@ while (time_at_target < 0.2 and time_trial < 10000):
         pre_clamp = prac_scr3.screen[2].ori +1
         prac_scr3.screen[2].ori = clamp_angle(int(pre_clamp))
     # if at target time add the length of this frame 
-    if target_ang - 20 <= prac_scr3.screen[2].ori <= target_ang + 20:
+    if target_ang - 30 <= prac_scr3.screen[2].ori <= target_ang + 30:
         time_at_target += time_frame
     print(time_at_target)
     # Update the display.
@@ -673,15 +679,18 @@ for trialnr, trial in enumerate(prac_trials):
     resp_onset = 0 
     currang = 0 
     tarang = 0
-    while t1 - probe_onset < RESPONSE_TIMEOUT:
+    end_press = False
+    while (t1 - probe_onset < RESPONSE_TIMEOUT and end_press == False):
         if MEG:
-            btn_list, state = trigbox.get_button_state(button_list = [LEFT_BUT, RIGHT_BUT]) # get button states 
+            btn_list, state = trigbox.get_button_state(button_list = [LEFT_BUT, RIGHT_BUT, MAIN_BUT]) # get button states 
             # we need to replicate the get_pressed() pygame functionality 
             button_states = [False, False] # list of bools 
             if state[0] != 0: # if left button is not 0
                 button_states[0] = True
-            if state[-1] != 0: # if right button is not 0 
+            if state[1] != 0: # if right button is not 0 
                 button_states[-1] = True 
+            if state[2] != 0:
+                end_press = True 
 
             key, presstime = kb.get_key(keylist=['q', 'f', 'j'], timeout=1, flush=False)
 
