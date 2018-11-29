@@ -4,7 +4,7 @@
 
 import os
 import sys 
-
+import tkinter as tk
 MEG = False; # Flag for using button box and waiting for pulses/ seinding triggers etc 
 
 
@@ -35,6 +35,24 @@ XPEN =2
 XDIAM = 15
 
 # FILES AND FOLDERS
+root = tk.Tk()
+L1 = tk.Label(root, text="Number or Name")
+L1.pack()
+E1 = tk.Entry(root, bd =5)
+E1.pack()
+var = tk.IntVar()
+button = tk.Button(root, text="Click Me", command=lambda: var.set(1))
+button.place(relx=.5, rely=.5, anchor="c")
+button.pack()
+print("waiting...")
+button.wait_variable(var)
+print("done waiting.")
+
+
+LOGFILENAME = str(E1.get())
+
+root.destroy()
+
 # Auto-detect folders.
 DIR = os.path.dirname(os.path.abspath(__file__))
 DATADIR = os.path.join(DIR, 'data')
@@ -51,12 +69,12 @@ if not os.path.isdir(RESDIR):
 
 # get participant info etc
 if sys.version_info[0] < 3:
-	LOGFILENAME = raw_input("Participant name: ") 
+	#LOGFILENAME = raw_input("Participant name: ") 
 	LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] +'_trials')
 	DETAILED_LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] +'_detailed')
 	EVENT_LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] + '_events')
 else:
-	LOGFILENAME = "Alex_trials"
+	#LOGFILENAME = "Alex_trials"
 	LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] +'_trials')
 	DETAILED_LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] +'_detailed')
 	EVENT_LOGFILE = os.path.join(DATADIR, LOGFILENAME[:] + '_events')
