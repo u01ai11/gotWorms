@@ -370,8 +370,7 @@ for scrn in instruction_screens:
     timer.pause(100)
     disp.fill(scrn); 
     disp.show()
-    btn_pressed = False
-
+    btn_pressed = False  
     if MEG: # if MEG repeatedly loop until button state changes
         trigbox.wait_for_button_press()
 
@@ -566,6 +565,8 @@ if (correct == False):
 disp.fill(prac_scr4)
 timer.pause(500) # pause so loads of clicks don't go through
 disp.show()
+
+
 if MEG: # if MEG repeatedly loop until button state changes
     trigbox.wait_for_button_press()
 else: 
@@ -818,6 +819,8 @@ else:
 
 
 block_scores = [0]
+
+total_score = 0
 # # # # #
 # RUN TRIALS
 
@@ -831,12 +834,9 @@ for trialnr, trial in enumerate(trials):
         breakscr = Screen()
         breaktxt = \
         """
-        Points for last block: """ +str(int(numpy.mean(block_scores))) + \
-        """
-        
         This is one of your breaks. 
         
-        You will have another in """ + str(int(TRIAL_BREAKS)) + "more trials"\
+        You will have another in """ + str(int(TRIAL_BREAKS)) + " more trials"\
         """ 
         
         PRESS ANY BUTTON TO END THE BREAK
@@ -845,13 +845,14 @@ for trialnr, trial in enumerate(trials):
         #calculate progress fraction 
         prg = trialnr/len(trials)
 
-        #draw empty square 
-        breakscr.draw_rect(x=DISPCENTRE[0], y=DISPCENTRE[1]-100 w=DISPSIZE[0]*0.8, h=100, pw=1)
         #draw fill with proportion
-        breakscr.draw_rect(colour = 'green', x=DISPCENTRE[0], y=DISPCENTRE[1]-100, w=(DISPSIZE[0]*0.8)*prg, h=100, pw=1, fill=True)
+        breakscr.draw_rect(colour = 'green', x=DISPSIZE[0]*0.1, y=DISPCENTRE[1]+200, w=(DISPSIZE[0]*0.8)*0.2, h=99, pw=1, fill=True)
+        #draw empty square 
+        breakscr.draw_rect(x=DISPSIZE[0]*0.1, y=DISPCENTRE[1]+200, w=DISPSIZE[0]*prg, h=100, pw=1)
         #write trials left 
-        breakscr.draw_text(str(int(len(trials)-trialnr)) + " worms left", fontsize=MAIN_FONTSIZE, pos=(DISPCENTRE[0], DISPCENTRE[1]-90))
-
+        breakscr.draw_text(str(int(len(trials)-10)) + " worms left", fontsize=MAIN_FONTSIZE, pos=(DISPCENTRE[0], DISPCENTRE[1]+300))
+        #Write total score
+        breakscr.draw_text("Your Points: " + str(int(total_score)), fontsize=50, pos=(DISPCENTRE[0], DISPCENTRE[1]-300), colour='green')
         disp.fill(breakscr)
         start_break = disp.show()
         if MEG: # if MEG repeatedly loop until button state changes
@@ -1059,9 +1060,10 @@ for trialnr, trial in enumerate(trials):
     #a = (a + 180) % 360 - 180
     ##feedscore = numpy.round(100 - (((abs(a)/90)*100) ),1)
     feedscore = numpy.round(100 - ((a/90)*100))
+    total_score += feedscore
     #present text
     feedscr.clear()
-
+    
     feedtxt = str(int(feedscore)) + " Points"
     feedtxt2 = " Worms until next break: " + str(int((TRIAL_BREAKS - trialnr % TRIAL_BREAKS)-1)) 
 
@@ -1086,18 +1088,19 @@ for trialnr, trial in enumerate(trials):
 
 # # # # #
 # CLOSE
-
-# Present a start-up screen.
-scr = Screen()
-scr.draw_text("Loading, please wait...", fontsize=MAIN_FONTSIZE)
-disp.fill(scr)
-disp.show()
-
+    
 # Close the log file.
 log.close()
 log_det.close()
 # Close connection to the eye tracker.
 tracker.close()
+
+# Present an ending screen.
+scr = Screen()
+scr.draw_text("That's the end of the game \n Well Done \n You scored: " + str(total_score) , fontsize=MAIN_FONTSIZE)
+disp.fill(scr)
+disp.show()
+kb.get_key(keylist=None, timeout=None, flush=True)
 
 # Close the display.
 disp.close()

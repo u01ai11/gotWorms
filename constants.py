@@ -6,7 +6,7 @@ import os
 import sys 
 import tkinter as tk
 
-MEG = False; # Flag for using button box and waiting for pulses/ seinding triggers etc 
+MEG = True; # Flag for using button box and waiting for pulses/ seinding triggers etc 
 
 
 
