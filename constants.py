@@ -5,7 +5,8 @@
 import os
 import sys 
 import tkinter as tk
-MEG = True; # Flag for using button box and waiting for pulses/ seinding triggers etc 
+
+MEG = False; # Flag for using button box and waiting for pulses/ seinding triggers etc 
 
 
 
@@ -36,24 +37,29 @@ XPEN =2
 XDIAM = 25
 MAIN_FONTSIZE = 35
 
-# FILES AND FOLDERS
-root = tk.Tk()
-L1 = tk.Label(root, text="Number or Name")
-L1.pack()
-E1 = tk.Entry(root, bd =5)
-E1.pack()
-var = tk.IntVar()
-button = tk.Button(root, text="Click Me", command=lambda: var.set(1))
-button.place(relx=.5, rely=.5, anchor="c")
-button.pack()
-print("waiting...")
-button.wait_variable(var)
-print("done waiting.")
+if sys.version_info[0] < 3:
+	# FILES AND FOLDERS
+	root = tk.Tk()
+	L1 = tk.Label(root, text="Number or Name")
+	L1.pack()
+	E1 = tk.Entry(root, bd =5)
+	E1.pack()
+	var = tk.IntVar()
+	button = tk.Button(root, text="Click Me", command=lambda: var.set(1))
+	button.place(relx=.5, rely=.5, anchor="c")
+	button.pack()
+	print("waiting...")
+	button.wait_variable(var)
+	print("done waiting.")
 
 
-LOGFILENAME = str(E1.get())
+	LOGFILENAME = str(E1.get())
 
-root.destroy()
+	root.destroy()
+else:
+	LOGFILENAME = 'Alex'
+
+
 
 # Auto-detect folders.
 DIR = os.path.dirname(os.path.abspath(__file__))
@@ -84,12 +90,12 @@ else:
 # 0 = go squares, no-go circles 
 # 1 = go circles, no-go squares
 
-
 # EXPERIMENT SETTINGS
 # Stimulus order: 0 for A left and B right; 1 for vice versa.
 STIM_ORDERS = [0]
 # Cue direction: -1 for neutral (=both), 0 for left, 1 for right.
 CUE_DIRECTIONS = [-1, 0, 1]
+
 # Number of times the unique combinations of stim order and cue direction are
 # run.
 UNIQUE_TRIAL_REPEATS = 40

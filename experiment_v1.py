@@ -5,6 +5,7 @@ import random
 import numpy
 
 from constants import *
+
 from pygaze.display import Display
 from pygaze.screen import Screen
 from pygaze.keyboard import Keyboard
@@ -25,7 +26,7 @@ disp = Display()
 
 # Present a start-up screen.
 scr = Screen()
-scr.draw_text("Loading, please wait...", fontsize=24)
+scr.draw_text("Loading, please wait...", fontsize=MAIN_FONTSIZE)
 disp.fill(scr)
 disp.show()
 
@@ -127,8 +128,8 @@ for i in range(len(trials)):
 random.shuffle(trials)
 
 
-#prac trials are just a random selection of 10 of the above trials 
-prac_trials = trials[0:9]
+#prac trials are just a random selection of 5 of the above trials 
+prac_trials = trials[0:4]
 
 #Re-shuffle trials to avoid repeat of the ten first trials
 random.shuffle(trials)
@@ -157,7 +158,7 @@ re-appear.
 
 (Press any button to continue.)
 """
-inst_scr.draw_text(instructions, fontsize=24, center=True)
+inst_scr.draw_text(instructions, fontsize=MAIN_FONTSIZE, center=True)
 instruction_screens.append(inst_scr)
 
 # Second screen with text and images.
@@ -170,7 +171,7 @@ Remember the way this snake is facing!
 
 When you are ready press a button to continue. 
 """
-inst_scr.draw_text(instructions, fontsize=24, pos = (DISPCENTRE[0], DISPCENTRE[1]-200))
+inst_scr.draw_text(instructions, fontsize=MAIN_FONTSIZE, pos = (DISPCENTRE[0], DISPCENTRE[1]-200))
 fpath = os.path.join(RESDIR, STIMNAMES[0] + ".png")
 inst_scr.draw_image(fpath, pos=(DISPCENTRE[0], DISPCENTRE[1]+150), scale = 0.7)
 inst_scr.screen[2].ori = 100
@@ -182,10 +183,10 @@ instructions = \
 """
 Can you remember which way the snake faced just now? 
 
-Press the red and green keys to turn the snake.
-Press the yellow key in your leff hand when you have remembered. 
+Press the red and green keys in you right hand to turn the snake.
+Press the yellow key in your left hand to respond. 
 """
-inst_scr.draw_text(instructions, fontsize=24, pos = (DISPCENTRE[0], DISPCENTRE[1]-200))
+inst_scr.draw_text(instructions, fontsize=MAIN_FONTSIZE, pos = (DISPCENTRE[0], DISPCENTRE[1]-200))
 fpath = os.path.join(RESDIR, STIMNAMES[0] + ".png")
 inst_scr.draw_image(fpath, pos=(DISPCENTRE[0], DISPCENTRE[1]+150), scale = 0.7)
 inst_scr.screen[2].ori = 0
@@ -204,7 +205,7 @@ But, you will only be asked to help one of them
 
 Press the key once you have looked at BOTH snakes.
 """
-inst_scr.draw_text(instructions, fontsize=24, pos = (DISPCENTRE[0], DISPCENTRE[1]-200))
+inst_scr.draw_text(instructions, fontsize=MAIN_FONTSIZE, pos = (DISPCENTRE[0], DISPCENTRE[1]-200))
 fpath = os.path.join(RESDIR, STIMNAMES[0] + ".png")
 inst_scr.draw_image(fpath, pos=(STIMPOS[0][0],STIMPOS[0][1]+200), scale = 0.7)
 inst_scr.screen[2].ori = 10
@@ -221,7 +222,7 @@ instructions = \
 """
 Which way was this snake facing?
 """
-inst_scr.draw_text(instructions, fontsize=24, pos = (DISPCENTRE[0], DISPCENTRE[1]-200))
+inst_scr.draw_text(instructions, fontsize=MAIN_FONTSIZE, pos = (DISPCENTRE[0], DISPCENTRE[1]-200))
 fpath = os.path.join(RESDIR, STIMNAMES[1] + ".png")
 inst_scr.draw_image(fpath, pos=(STIMPOS[1][0],STIMPOS[1][1]+200) , scale = 0.7)
 inst_scr.screen[2].ori = 0
@@ -245,7 +246,7 @@ try and make it as close to 100 as possible.
 
 (Press any button to continue.)
 """
-inst_scr.draw_text(instructions, fontsize=24)
+inst_scr.draw_text(instructions, fontsize=MAIN_FONTSIZE)
 prac_scr4 = inst_scr
 
 #prac screen 5 
@@ -263,7 +264,7 @@ You will have """+ str(int(n_trials/TRIAL_BREAKS)) +""" breaks in the task.
 
 (Press any button to continue.)
 """
-inst_scr.draw_text(instructions, fontsize=24)
+inst_scr.draw_text(instructions, fontsize=MAIN_FONTSIZE)
 prac_scr5 = inst_scr
 
 
@@ -342,7 +343,7 @@ for direction in [0,1]:
 #FEEDBACK 
 feedscr = Screen()
 feedtxt = ""
-feedscr.draw_text(feedtxt, fontsize=24)
+feedscr.draw_text(feedtxt, fontsize=MAIN_FONTSIZE)
 
 #BREAK SCREEN
 breakscr = Screen()
@@ -355,7 +356,7 @@ You will have another in """ + str(int(TRIAL_BREAKS)) + \
 
 PRESS ANY BUTTON TO END THE BREAK
 """
-breakscr.draw_text(breaktxt, fontsize=24)
+breakscr.draw_text(breaktxt, fontsize=MAIN_FONTSIZE)
 
 
 
@@ -432,9 +433,17 @@ while (time_at_target < 0.2 and time_trial < 10000 and end_press == False):
         pre_clamp = prac_scr.screen[2].ori +1
         prac_scr.screen[2].ori = clamp_angle(int(pre_clamp))
     # if at target time add the length of this frame 
-    if target_ang - 30 <= prac_scr.screen[2].ori <= target_ang + 30:
+    angle = prac_scr.screen[2].ori
+    # reduce the angle  
+    angle =  angle % 360; 
+    #force it to be the positive remainder, so that 0 <= angle < 360  
+    angle = (angle + 360) % 360;  
+    #force into the minimum absolute value residue class, so that -180 < angle <= 180  
+    if (angle > 180):
+        angle -= 360;  
+    if target_ang - 30 <= abs(angle) <= target_ang + 30:
         time_at_target += time_frame
-    print(time_at_target)
+    print(time_at_target, angle, target_ang)
     # Update the display.
     disp.fill(prac_scr)
     t1 = disp.show()
@@ -516,8 +525,16 @@ while (time_at_target < 0.2 and time_trial < 10000 and end_press == False):
     elif button_states[-1]:
         pre_clamp = prac_scr3.screen[2].ori +1
         prac_scr3.screen[2].ori = clamp_angle(int(pre_clamp))
-    # if at target time add the length of this frame 
-    if target_ang - 30 <= prac_scr3.screen[2].ori <= target_ang + 30:
+    # if at target time add the length of this frame
+    angle= prac_scr3.screen[2].ori 
+    # reduce the angle  
+    angle =  angle % 360; 
+    #force it to be the positive remainder, so that 0 <= angle < 360  
+    angle = (angle + 360) % 360;  
+    #force into the minimum absolute value residue class, so that -180 < angle <= 180  
+    if (angle > 180):
+        angle -= 360;  
+    if target_ang - 30 <= abs(angle) <= target_ang + 30:
         time_at_target += time_frame
     print(time_at_target)
     # Update the display.
@@ -824,7 +841,16 @@ for trialnr, trial in enumerate(trials):
         
         PRESS ANY BUTTON TO END THE BREAK
         """
-        breakscr.draw_text(breaktxt, fontsize=24)
+        breakscr.draw_text(breaktxt, fontsize=MAIN_FONTSIZE)
+        #calculate progress fraction 
+        prg = trialnr/len(trials)
+
+        #draw empty square 
+        breakscr.draw_rect(x=DISPCENTRE[0], y=DISPCENTRE[1]-100 w=DISPSIZE[0]*0.8, h=100, pw=1)
+        #draw fill with proportion
+        breakscr.draw_rect(colour = 'green', x=DISPCENTRE[0], y=DISPCENTRE[1]-100, w=(DISPSIZE[0]*0.8)*prg, h=100, pw=1, fill=True)
+        #write trials left 
+        breakscr.draw_text(str(int(len(trials)-trialnr)) + " worms left", fontsize=MAIN_FONTSIZE, pos=(DISPCENTRE[0], DISPCENTRE[1]-90))
 
         disp.fill(breakscr)
         start_break = disp.show()
@@ -1063,7 +1089,7 @@ for trialnr, trial in enumerate(trials):
 
 # Present a start-up screen.
 scr = Screen()
-scr.draw_text("Loading, please wait...", fontsize=24)
+scr.draw_text("Loading, please wait...", fontsize=MAIN_FONTSIZE)
 disp.fill(scr)
 disp.show()
 
