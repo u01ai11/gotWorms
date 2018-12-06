@@ -846,15 +846,18 @@ for trialnr, trial in enumerate(trials):
         prg = trialnr/len(trials)
 
         #draw fill with proportion
-        breakscr.draw_rect(colour = 'green', x=DISPSIZE[0]*0.1, y=DISPCENTRE[1]+200, w=(DISPSIZE[0]*0.8)*0.2, h=99, pw=1, fill=True)
+        breakscr.draw_rect(colour = 'green', x=DISPSIZE[0]*0.1, y=DISPCENTRE[1]+200, w=(DISPSIZE[0]*0.8)*prg, h=99, pw=1, fill=True)
         #draw empty square 
-        breakscr.draw_rect(x=DISPSIZE[0]*0.1, y=DISPCENTRE[1]+200, w=DISPSIZE[0]*prg, h=100, pw=1)
+        breakscr.draw_rect(x=DISPSIZE[0]*0.1, y=DISPCENTRE[1]+200, w=DISPSIZE[0]*0.8, h=100, pw=1)
         #write trials left 
         breakscr.draw_text(str(int(len(trials)-10)) + " worms left", fontsize=MAIN_FONTSIZE, pos=(DISPCENTRE[0], DISPCENTRE[1]+300))
         #Write total score
         breakscr.draw_text("Your Points: " + str(int(total_score)), fontsize=50, pos=(DISPCENTRE[0], DISPCENTRE[1]-300), colour='green')
         disp.fill(breakscr)
         start_break = disp.show()
+
+        timer.pause(500) # pause so loads of clicks don't go through
+
         if MEG: # if MEG repeatedly loop until button state changes
             trigbox.wait_for_button_press()
         else: 
