@@ -843,14 +843,14 @@ for trialnr, trial in enumerate(trials):
         """
         breakscr.draw_text(breaktxt, fontsize=MAIN_FONTSIZE)
         #calculate progress fraction 
-        prg = trialnr/len(trials)
-
+        prg = float(trialnr)/float(len(trials))
+        print(prg)
         #draw fill with proportion
         breakscr.draw_rect(colour = 'green', x=DISPSIZE[0]*0.1, y=DISPCENTRE[1]+200, w=(DISPSIZE[0]*0.8)*prg, h=99, pw=1, fill=True)
         #draw empty square 
         breakscr.draw_rect(x=DISPSIZE[0]*0.1, y=DISPCENTRE[1]+200, w=DISPSIZE[0]*0.8, h=100, pw=1)
         #write trials left 
-        breakscr.draw_text(str(int(len(trials)-10)) + " worms left", fontsize=MAIN_FONTSIZE, pos=(DISPCENTRE[0], DISPCENTRE[1]+300))
+        breakscr.draw_text(str(int(len(trials)-trialnr)) + " worms left", fontsize=MAIN_FONTSIZE, pos=(DISPCENTRE[0], DISPCENTRE[1]+350))
         #Write total score
         breakscr.draw_text("Your Points: " + str(int(total_score)), fontsize=50, pos=(DISPCENTRE[0], DISPCENTRE[1]-300), colour='green')
         disp.fill(breakscr)
